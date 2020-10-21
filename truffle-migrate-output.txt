@@ -1,0 +1,67 @@
+jerald: ~/Desktop/CZ4153_dApp (auction)[17:49]$ truffle migrate
+
+Compiling your contracts...
+===========================
+> Everything is up to date, there is nothing to compile.
+
+
+
+Starting migrations...
+======================
+> Network name:    'ganache'
+> Network id:      5777
+> Block gas limit: 6721975 (0x6691b7)
+
+
+1_initial_migration.js
+======================
+
+   Deploying 'Migrations'
+   ----------------------
+   > transaction hash:    0x3105107b6dd18e5bf3ea6a0f3bba380cd9151d4a74887a3d4dd6ce0a42ba0fda
+   > Blocks: 0            Seconds: 0
+   > contract address:    0xebD075E61f4302c806De35002886D465a862D086
+   > block number:        1
+   > block timestamp:     1603274557
+   > account:             0x08557d597669d3C945564F66e7248bD9E61a63a4
+   > balance:             99.99549526
+   > gas used:            225237 (0x36fd5)
+   > gas price:           20 gwei
+   > value sent:          0 ETH
+   > total cost:          0.00450474 ETH
+
+
+   > Saving migration to chain.
+   > Saving artifacts
+   -------------------------------------
+   > Total cost:          0.00450474 ETH
+
+
+2_deploy_contracts.js
+=====================
+
+   Deploying 'AuctionFactory'
+   --------------------------
+   > transaction hash:    0x0d4e5ecc7a2f8003c77a648046ba458049b441ac824ed055d57c6174283ced57
+   > Blocks: 0            Seconds: 0
+   > contract address:    0x3BB07B232b6f1A611d45ad3785e6b31995f3d1f1
+   > block number:        3
+   > block timestamp:     1603274558
+   > account:             0x08557d597669d3C945564F66e7248bD9E61a63a4
+   > balance:             99.97343104
+   > gas used:            1060848 (0x102ff0)
+   > gas price:           20 gwei
+   > value sent:          0 ETH
+   > total cost:          0.02121696 ETH
+
+
+   > Saving migration to chain.
+   > Saving artifacts
+   -------------------------------------
+   > Total cost:          0.02121696 ETH
+
+
+Summary
+=======
+> Total deployments:   2
+> Final cost:          0.0257217 ETH

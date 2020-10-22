@@ -16,5 +16,8 @@
     "url": "https://github.com/JeraldYik/CZ4153_dApp/issues"
   },
   "homepage": "https://github.com/JeraldYik/CZ4153_dApp#readme",
-  "dependencies": {}
+  "dependencies": {},
+  "devDependencies": {
+    "@openzeppelin/test-helpers": "^0.5.7"
+  }
 }

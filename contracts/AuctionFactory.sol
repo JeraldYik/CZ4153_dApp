@@ -3,13 +3,13 @@ pragma solidity >=0.4.22 <0.8.0;
 import {BlindAuction} from "./BlindAuction.sol";
 
 contract AuctionFactory {
-    Auction[] private auctions;
+    BlindAuction[] private auctions;
 
     event AuctionCreated(
-        Auction auctionContract,
+        BlindAuction auctionContract,
         address owner,
         uint256 numAuctions,
-        Auction[] allAuctions
+        BlindAuction[] allAuctions
     );
 
     constructor() public {}
@@ -19,13 +19,13 @@ contract AuctionFactory {
         uint256 startBlock,
         uint256 endBlock
     ) public {
-        Auction newAuction = new Auction(
+        BlindAuction newAuction = new BlindAuction(
             msg.sender,
             bidIncrement,
             startBlock,
             endBlock
         );
-        Auction[] memory aux = new Auction[](auctions.length + 1);
+        BlindAuction[] memory aux = new BlindAuction[](auctions.length + 1);
         for (uint256 i = 0; i < auctions.length; i++) {
             aux[i] = auctions[i];
         }

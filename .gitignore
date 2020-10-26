@@ -1,5 +1,4 @@
-./node_modules
-./.infura.key
-./.projectid
-./.secret
+node_modules
+.env
+build
 

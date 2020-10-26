@@ -1,6 +1,6 @@
 pragma solidity >=0.4.22 <0.8.0;
 
-import {Auction} from "./Auction.sol";
+import {BlindAuction} from "./BlindAuction.sol";
 
 contract AuctionFactory {
     Auction[] private auctions;

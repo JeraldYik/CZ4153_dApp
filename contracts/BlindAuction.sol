@@ -1,22 +1,15 @@
 pragma solidity >=0.4.22 <0.8.0;
 
-contract BlindAuction {
+import {Registry} from "./Registry.sol";
 
-  constructor(address payable _owner, uint256 _bidIncrement, uint256 _biddingTime, uint256 _revealTime) public {
-    biddingEnd = now + _biddingTime;
-    revealEnd = biddingEnd + _revealTime;
-    require(biddingEnd >= now);
-    require(revealEnd > now);
-    require(_owner == address(0));
-    owner = _owner;
-    bidIncrement = _bidIncrement;
-}
+contract BlindAuction {
 
   // Static variables
   address payable public owner;
   uint256 public bidIncrement;
   uint public biddingEnd;
   uint public revealEnd;
+  bytes32 public namehash;
 
   // State variables
   bool public canceled;
@@ -43,6 +36,17 @@ contract BlindAuction {
   event AuctionEnded(address winner, uint highestBid);
   event LogCanceled();
 
+  constructor(address payable _owner, uint256 _bidIncrement, uint256 _biddingTime, uint256 _revealTime, bytes32 _namehash) public {
+    biddingEnd = block.timestamp + _biddingTime;
+    revealEnd = biddingEnd + _revealTime;
+    require(biddingEnd >= block.timestamp, "Time where bid ends has to be larger than current time");
+    require(revealEnd > block.timestamp, "Time where reveal ends has to be larger than current time");
+    require(_owner == address(0));
+    owner = _owner;
+    bidIncrement = _bidIncrement;
+    namehash = _namehash;
+}
+
   // function to derive bidHash
   function bidHash(bytes32 _bidvalue, bool _fake, bytes32 _salt) pure public returns (bytes32 blindBid) {
     blindBid = keccak256(abi.encodePacked(_bidvalue, _fake, _salt));
@@ -53,10 +57,10 @@ contract BlindAuction {
   function commitBid(bytes32 _blindBid) public payable onlyBefore(biddingEnd){
     // Place a blinded bid with `_blindBid` = keccak256(bidvalue, fake, salt)
     bids[msg.sender].push(Bid({
-    blindBid: _blindBid,
-    deposit: msg.value,
-    block: uint64(block.number),
-    revealed: false
+      blindBid: _blindBid,
+      deposit: msg.value,
+      block: uint64(block.number),
+      revealed: false
     }));
   }
 
@@ -65,20 +69,20 @@ contract BlindAuction {
 
     // Tallying all responses from 1 bidder
     uint length = bids[msg.sender].length;
-    require(_bidvalue.length == length);
-    require(_fake.length == length);
-    require(_salt.length == length);
+    require(_bidvalue.length == length, "length of _bidValues do not match");
+    require(_fake.length == length, "length of _fake do not match");
+    require(_salt.length == length, "length of _salt do not match");
 
     uint refund;
     for (uint i = 0; i < length; i++) {
-      //make sure it hasn't been revealed yet and set it to revealed
-      require(bids[msg.sender][i].revealed==false,"CommitReveal::revealBid: Already revealed");
-      bids[msg.sender][i].revealed=true;
-      //require that the block number is greater than the original block
-      require(uint64(block.number)>bids[msg.sender][i].block,"CommitReveal::reveal: Reveal and commit happened on the same block");
-
       // Takes all n bids made by one bidder and sums up the deposits made, along with which bids were fake
       Bid storage bid = bids[msg.sender][i];
+      //make sure it hasn't been revealed yet and set it to revealed
+      require(bid.revealed==false,"CommitReveal::revealBid: Already revealed");
+      bids[msg.sender][i].revealed=true;
+      //require that the block number is greater than the original block
+      require(uint64(block.number)>bid.block,"CommitReveal::reveal: Reveal and commit happened on the same block");
+
       (uint bidvalue, bool fake, bytes32 salt) = (_bidvalue[i], _fake[i], _salt[i]);
       if (bid.blindBid != keccak256(abi.encodePacked(bidvalue, fake, salt))) {
           // Bid was not actually revealed. Hash did not match.
@@ -129,11 +133,12 @@ contract BlindAuction {
   }
 
   /// End the auction and send the highest bid to the owner of the contract
-  function auctionEnd() public onlyAfter(revealEnd) {
-    require(!hasEnded);
+  function auctionEnd() public onlyAfter(revealEnd) returns (address topBidder) {
+    require(!hasEnded, "Auction has not ended in the first place");
     emit AuctionEnded(topBidder, topBid);
     hasEnded = true;
     owner.transfer(topBid);
+    return topBidder;
   }
 
   function cancelAuction() public onlyOwner onlyBefore(revealEnd) onlyNotCanceled returns (bool success) {
@@ -144,8 +149,8 @@ contract BlindAuction {
 
   // Modifiers to validate inputs to functions. For instance `onlyBefore` is applied to `commitBid`
   // The new function body is the modifier's body, where `_` represents the old function body.
-  modifier onlyBefore(uint _time) { require(now < _time); _; }
-  modifier onlyAfter(uint _time) { require(now > _time); _; }
+  modifier onlyBefore(uint _time) { require(block.timestamp < _time, "block.timestamp must be before _time"); _; }
+  modifier onlyAfter(uint _time) { require(block.timestamp > _time, "block.timestamp must be after _time"); _; }
   modifier onlyEndedOrCanceled { require(hasEnded && canceled, "Auction is still ongoing"); _; }
   modifier onlyOwner { require(msg.sender == owner, "Only owner can call this function."); _; }
   modifier onlyNotCanceled { require(!canceled, "Auction has not been cancelled"); _; }

@@ -47,7 +47,7 @@ contract AuctionFactory {
         // remove auction from storage?
     }
 
-    function allAuctions() public pure returns (bytes32 auctions) {
-        return auctions;
-    }
+    // function allAuctions() public pure returns (mapping(bytes32 => BlindAuction)) {
+    //     return auctions;
+    // }
 }

@@ -61,11 +61,11 @@ contract Registry {
         }
     }
 
-    function owner(bytes32 _namehash) public returns (address owner) {
+    function owner(bytes32 _namehash) public view returns (address) {
         address _owner;
         for (uint256 i = 0; i < recordsKeys.length; i++) {
             if (records[_namehash].owner != address(0x0)) {
-                _owner = owner;
+                _owner = records[_namehash].owner;
                 return _owner;
             }
         }

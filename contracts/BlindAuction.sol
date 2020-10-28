@@ -133,7 +133,7 @@ contract BlindAuction {
   }
 
   /// End the auction and send the highest bid to the owner of the contract
-  function auctionEnd() public onlyAfter(revealEnd) returns (address topBidder) {
+  function auctionEnd() public onlyAfter(revealEnd) returns (address) {
     require(!hasEnded, "Auction has not ended in the first place");
     emit AuctionEnded(topBidder, topBid);
     hasEnded = true;

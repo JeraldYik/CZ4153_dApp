@@ -22,7 +22,14 @@ const web3 = new Web3(
 const contract = new web3.eth.Contract(artifact.abi, ContractAddress);
 
 // AuctionFactory
-export const createAuction = async () => {
-
+export const createAuction = async (_bidIncrement, _biddingTime, _revealTime, _domain) => {
+  return await contract.methods.createAuction(_bidIncrement, _biddingTime, _revealTime, _domain).call();
 }
 
+export const cancelAuction = async (_domain) => {
+  await contract.methods.endAuction(_domain).call();
+}
+
+export const findAuction = async (_domain) => {
+  return await contract.methods.findAuction(_domain).call();
+}

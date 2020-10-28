@@ -12,6 +12,7 @@ const infuraWSS = 'wss://ropsten.infura.io/ws/v3/3537874f2c17447e8f2dc9ceb1beae0
 
 export const ContractAddress = "0xfE3F93684e6dD9cE47D72D2D4B6Ba9b175E2F3dE"; // PLEASE CHANGE IT TO YOURS
 export const Testnet = "ropsten"; // PLEASE CHANGE IT TO YOURS
+export const ChainID = 3;
 
 const web3 = new Web3(
   Web3.currentProvider || new Web3.providers.WebsocketProvider(infuraWSS)
@@ -58,17 +59,12 @@ export const newDeposit = async (amount) => {
 };
 
 // Auction
-export const getHighestBid = async () => {
-
+export const getHighestBid = async (_auction) => {
+  
 }
 
 // Auction
 export const placeBid = async () => {
-
-}
-
-// Auction
-export const cancelAuction = async () => {
 
 }
 

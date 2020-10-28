@@ -25,7 +25,7 @@ contract AuctionFactory {
         uint256 biddingTime,
         uint256 revealTime,
         string memory domain
-    ) public {
+    ) public returns (BlindAuction) {
         bytes32 namehash = registry.registerNewDomain(domain, msg.sender);
         BlindAuction newAuction = new BlindAuction(
             msg.sender,
@@ -38,6 +38,17 @@ contract AuctionFactory {
         namehashes.push(namehash);
 
         emit AuctionCreated(newAuction, msg.sender, namehashes.length);
+        return newAuction;
+    }
+
+    function findAuction(string memory domain)
+        public
+        view
+        returns (BlindAuction)
+    {
+        bytes32 _namehash = registry.getOwnerNamehash(domain);
+        // require(auctions[_namehash].namehash != 0, "Domain cannot be found");
+        return auctions[_namehash];
     }
 
     function endAuction(string memory domain) public {
@@ -47,7 +58,11 @@ contract AuctionFactory {
         // remove auction from storage?
     }
 
-    // function allAuctions() public pure returns (mapping(bytes32 => BlindAuction)) {
-    //     return auctions;
+    // function allAuctions() public returns (BlindAuction[] memory) {
+    //     BlindAuction[] memory _auctions = new BlindAuction[](namehashes.length);
+    //     for (uint256 i = 0; i < namehashes.length; i++) {
+    //         _auctions[i] = auctions[i];
+    //     }
+    //     return _auctions;
     // }
 }

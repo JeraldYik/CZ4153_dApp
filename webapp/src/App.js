@@ -1,57 +1,52 @@
 import React, {useState, useEffect} from "react";
+import User from './components/User';
+import {
+  getHighestBid
+} from "./auction.js";
 import {
   ContractAddress,
   Testnet,
-  getHighestBid,
-  placeBid,
+  createAuction,
   cancelAuction,
-  withdraw,
-} from "./auction.js";
-import {
-  createAuction
+  findAuction
 } from "./auctionFactory.js"
 
 const App = () => {
+  const [domainName, setDomainName] = useState('');
   const [highestBid, setHighestBid] = useState(0);
-  const [user1Value, setUser1Value] = useState(0);
-  const [user2Value, setUser2Value] = useState(0);
+  const [users, setUsers] = useState([]);
+  const [auctions, setAuctions] = useState([]);
+
+  const NUM_USERS = 2;
+  const BID_INCREMENT = 10;
+  const BIDDING_TIME = 10;
+  const REVEAL_TIME = 1;
+
+  useEffect(() => {
+    const _users = [];
+    for (var i=0; i<NUM_USERS; i++) {
+      _users.push(<User index={i} />);
+    }
+    setUsers(_users);
+  }, []);
+
+  const handleDomainNameChange = (e) => {
+    setDomainName(e.target.value);
+  }
 
   const handleCreateAuction = async () => {
-    await createAuction();
+    let newAuction = await createAuction(BID_INCREMENT, BIDDING_TIME, REVEAL_TIME, domainName);
+    setAuctions([...auctions, newAuction]);
   }
 
   const handleCancelAuction = async () => {
-    await cancelAuction();
+    await cancelAuction(domainName);
   }
 
   const handleGetHighestBid = async () => {
-    const highestBid = await getHighestBid();
-    setHighestBid(highestBid);
-  }
-  
-  const handleValueChange = (e) => {
-    // find User #
-    setUser1Value(e.target.value);
-  }
-
-  const handleSubmitNewBid = async (e) => {
-    // find User #
-    await placeBid();
-  }
-
-  const handleWithdraw = async (e) => {
-    // find User #
-    const user = '';
-    switch (user) {
-      case 1:
-        await withdraw();
-        break;
-      case 2:
-        await withdraw();
-        break;
-      default:
-        throw new Error();
-    }
+    const auction = await findAuction(domainName);
+    const _highestBid = await getHighestBid(auction);
+    setHighestBid(_highestBid);
   }
 
   return (
@@ -62,46 +57,25 @@ const App = () => {
       <hr />
       <div>
         <h3>Owner:</h3>
-        <button onClick={handleCreateAuction}>Create Auction</button>
-        <p>Highest bid: {handleGetHighestBid}</p>
+        <input
+          id="domain-name"
+          type="text"
+          placeholder="domain"
+          value={domainName}
+          onChange={handleDomainNameChange}
+        />
+        <label for="domain-name">.ntu</label>
+        <br />
+        <input 
+          type="submit"
+          value="Create Auction"
+          onClick={handleCreateAuction}
+        />
+        <p>Highest bid: {highestBid}</p>
+        <button onClick={handleGetHighestBid}>Get Highest Bid</button>
         <button onClick={handleCancelAuction}>Cancel Auction</button>
       </div>
-      <div>
-        <h3>User 1</h3>
-        <div>
-          <p>Place Bid</p>
-          <input
-            type="text"
-            placeholder="Enter amount (in Ether)"
-            value={user1Value}
-            onChange={handleValueChange}
-          />{" "}
-          <input
-            type="submit"
-            value="New Bid"
-            onClick={handleSubmitNewBid}
-          />
-        </div>
-        <button onClick={handleWithdraw}>Withdraw from Auction</button>
-      </div>
-      <div>
-        <h3>User 2</h3>
-        <div>
-          <p>Place Bid</p>
-          <input
-            type="text"
-            placeholder="Enter amount (in Ether)"
-            value={user1Value}
-            onChange={handleValueChange}
-          />{" "}
-          <input
-            type="submit"
-            value="New Bid"
-            onClick={handleSubmitNewBid}
-          />
-        </div>
-        <button onClick={handleWithdraw}>Withdraw from Auction</button>
-      </div>
+      {users}
     </>
   );
 }

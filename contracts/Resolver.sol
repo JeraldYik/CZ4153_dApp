@@ -5,7 +5,7 @@ contract Resolver {
 
   event AddrChanged(bytes32 indexed namehash, address walletaddress);
 
-    // Stores owner's namehash and address for his/her owned domain
+  // Stores owner's namehash and address for his/her owned domain
   address owner;
 
   mapping(bytes32=>address) addresses;

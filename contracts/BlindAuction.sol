@@ -1,6 +1,6 @@
 pragma solidity >=0.4.22 <0.8.0;
 
-import {Registry} from "./Registry.sol";
+// import {Registry} from "./Registry.sol";
 
 contract BlindAuction {
 
@@ -36,13 +36,12 @@ contract BlindAuction {
   event AuctionEnded(address winner, uint highestBid);
   event LogCanceled();
 
-  constructor(address payable _owner, uint256 _bidIncrement, uint256 _biddingTime, uint256 _revealTime, bytes32 _namehash) public {
+  constructor(uint256 _bidIncrement, uint256 _biddingTime, uint256 _revealTime, bytes32 _namehash) public {
     biddingEnd = block.timestamp + _biddingTime;
     revealEnd = biddingEnd + _revealTime;
     require(biddingEnd >= block.timestamp, "Time where bid ends has to be larger than current time");
     require(revealEnd > block.timestamp, "Time where reveal ends has to be larger than current time");
-    require(_owner == address(0));
-    owner = _owner;
+    owner = address(uint160(address(this)));
     bidIncrement = _bidIncrement;
     namehash = _namehash;
 }

@@ -18,6 +18,7 @@
   "homepage": "https://github.com/JeraldYik/CZ4153_dApp#readme",
   "dependencies": {
     "@truffle/hdwallet-provider": "^1.1.1",
-    "dotenv": "^8.2.0"
+    "dotenv": "^8.2.0",
+    "truffle-assertions": "^0.9.2"
   }
 }

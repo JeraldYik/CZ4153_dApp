@@ -6,10 +6,6 @@ contract Registry {
     mapping(bytes32 => Record) public records;
     bytes32[] public recordsKeys;
 
-    // Stores owner's namehash for his/her owned domain for modifier later
-    // Actually not sure how to use this yet
-    bytes32 ownernamehash;
-
     constructor() public {
       owner = msg.sender;
     }
@@ -18,10 +14,11 @@ contract Registry {
         string domain;
         bytes32 namehash;
         address owner;
+        bool taken;
     }
 
     // Events to log significant events occuring within the registry
-    event NewDomain(bytes32 indexed namehash, address owner, string domain);
+    event NewDomain(bytes32 indexed namehash, address owner, string domain, bool taken);
     event Transfer(bytes32 indexed namehash, address owner);
 
     // Creating a new entry for a new registered domain
@@ -30,28 +27,31 @@ contract Registry {
         returns (bytes32 namehash)
     {
         bytes32 _namehash = getDomainNamehash(_domain);
-        // Push these information back to the Registry
+        bool _taken = records[_namehash].taken;
+        require(_taken == false, "This domain has been registered.");
+        // Push these information back to the Registry if domain is unregistered
         records[_namehash] = Record({
             domain: _domain,
             namehash: _namehash,
-            owner: _owner
+            owner: _owner,
+            taken: true
         });
         recordsKeys.push(_namehash);
 
-        emit NewDomain(_namehash, msg.sender, records[_namehash].domain);
+        emit NewDomain(_namehash, msg.sender, records[_namehash].domain, records[_namehash].taken);
         return _namehash;
     }
 
     function queryDomainOwner(string memory _domain) public view returns (address) {
-        address _owner;
-        bytes32 _namehash = getDomainNamehash(_domain);
-        for (uint256 i = 0; i < recordsKeys.length; i++) {
-            if (records[_namehash].owner != address(0x0)) {
-                _owner = records[_namehash].owner;
-                return _owner;
-            }
-        }
-        require(_owner != address(0x0), "Owner cannot be found, Domain is available.");
+      address _owner;
+      bool _taken;
+      bytes32 _namehash = getDomainNamehash(_domain);
+      if (records[_namehash].taken == true) {
+              _taken = records[_namehash].taken;
+              _owner = records[_namehash].owner;
+              return _owner;
+      }
+      require(_taken == true, "This domain is available.");
     }
 
     // Transfer domain ownership, callable only by owner
@@ -95,21 +95,3 @@ contract Registry {
         _;
     }
 }
-
-// struct Bid {
-//   address bidOwner;
-//   uint bidAmount;
-//   bytes32 nameEntity;
-// }
-//
-// mapping(bytes32 => Bid[]) highestBidder;
-//
-// function getBidCount(bytes32 name) public constant returns (uint) {
-//     return highestBidder[name].length;
-// }
-//
-// function getBid(bytes32 name, uint index) public constant returns (address, uint, bytes32) {
-//     Bid storage bid = highestBidder[name][index];
-//
-//     return (bid.bidOwner, bid.bidAmount, bid.nameEntity);
-// }

@@ -2,13 +2,13 @@ pragma solidity >=0.4.22 <0.8.0;
 
 import {BlindAuction} from "./BlindAuction.sol";
 import {Registry} from "./Registry.sol";
-import {Resolver} from "./Resolver.sol";
+// import {Resolver} from "./Resolver.sol";
 
 contract AuctionFactory {
-    mapping(bytes32 => BlindAuction) private auctions;
-    bytes32[] namehashes;
+    mapping(bytes32 => BlindAuction) public auctions;
+    bytes32[] public namehashes;
+    address public owner;
     Registry registry = new Registry();
-    // DomainName[] public domains;
 
     event AuctionCreated(
         BlindAuction auctionContract,
@@ -18,7 +18,9 @@ contract AuctionFactory {
 
     event AuctionEnded(address topBidder, uint256 topBid);
 
-    constructor() public {}
+    constructor() public {
+      owner = msg.sender;
+    }
 
     function createAuction(
         uint256 bidIncrement,
@@ -26,9 +28,8 @@ contract AuctionFactory {
         uint256 revealTime,
         string memory domain
     ) public returns (BlindAuction) {
-        bytes32 namehash = registry.registerNewDomain(domain, msg.sender);
+        bytes32 namehash = registry.getDomainNamehash(domain);
         BlindAuction newAuction = new BlindAuction(
-            msg.sender,
             bidIncrement,
             biddingTime,
             revealTime,
@@ -54,8 +55,7 @@ contract AuctionFactory {
     function endAuction(string memory domain) public {
         bytes32 namehash = registry.registerNewDomain(domain, msg.sender);
         address topBidder = auctions[namehash].auctionEnd();
-        registry.transferOwner(namehash, topBidder);
-        // remove auction from storage?
+        registry.registerNewDomain(domain, topBidder);
     }
 
     // function allAuctions() public returns (BlindAuction[] memory) {

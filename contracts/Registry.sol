@@ -2,7 +2,17 @@ pragma solidity >=0.4.22 <0.8.0;
 
 contract Registry {
     //static variable
-    constructor() public {}
+    address public owner;
+    mapping(bytes32 => Record) public records;
+    bytes32[] public recordsKeys;
+
+    // Stores owner's namehash for his/her owned domain for modifier later
+    // Actually not sure how to use this yet
+    bytes32 ownernamehash;
+
+    constructor() public {
+      owner = msg.sender;
+    }
 
     struct Record {
         string domain;
@@ -10,14 +20,8 @@ contract Registry {
         address owner;
     }
 
-    mapping(bytes32 => Record) public records;
-    bytes32[] recordsKeys;
-
-    // Stores owner's namehash for his/her owned domain
-    bytes32 ownernamehash;
-
     // Events to log significant events occuring within the registry
-    event NewDomain(bytes32 indexed namehash, address owner);
+    event NewDomain(bytes32 indexed namehash, address owner, string domain);
     event Transfer(bytes32 indexed namehash, address owner);
 
     // Creating a new entry for a new registered domain
@@ -25,7 +29,7 @@ contract Registry {
         public
         returns (bytes32 namehash)
     {
-        bytes32 _namehash = getOwnerNamehash(_domain);
+        bytes32 _namehash = getDomainNamehash(_domain);
         // Push these information back to the Registry
         records[_namehash] = Record({
             domain: _domain,
@@ -34,11 +38,33 @@ contract Registry {
         });
         recordsKeys.push(_namehash);
 
-        emit NewDomain(_namehash, msg.sender);
+        emit NewDomain(_namehash, msg.sender, records[_namehash].domain);
         return _namehash;
     }
 
-    function getOwnerNamehash(string memory _domain)
+    function queryDomainOwner(string memory _domain) public view returns (address) {
+        address _owner;
+        bytes32 _namehash = getDomainNamehash(_domain);
+        for (uint256 i = 0; i < recordsKeys.length; i++) {
+            if (records[_namehash].owner != address(0x0)) {
+                _owner = records[_namehash].owner;
+                return _owner;
+            }
+        }
+        require(_owner != address(0x0), "Owner cannot be found, Domain is available.");
+    }
+
+    // Transfer domain ownership, callable only by owner
+    function transferOwner(bytes32 _namehash, address _newowner)
+        public
+        only_owner(_namehash)
+    {
+        emit Transfer(_namehash, _newowner);
+        records[_namehash].owner = _newowner;
+    }
+
+    // Pure functions and modifiers
+    function getDomainNamehash(string memory _domain)
         public
         pure
         returns (bytes32 _namehash)
@@ -59,26 +85,6 @@ contract Registry {
                 abi.encodePacked(_namehash, keccak256(abi.encodePacked("ntu")))
             );
         }
-    }
-
-    function owner(bytes32 _namehash) public view returns (address) {
-        address _owner;
-        for (uint256 i = 0; i < recordsKeys.length; i++) {
-            if (records[_namehash].owner != address(0x0)) {
-                _owner = records[_namehash].owner;
-                return _owner;
-            }
-        }
-        require(_owner != address(0x0), "Owner cannot be found");
-    }
-
-    //
-    function transferOwner(bytes32 _namehash, address _newowner)
-        public
-        only_owner(ownernamehash)
-    {
-        emit Transfer(_namehash, _newowner);
-        records[_namehash].owner = _newowner;
     }
 
     modifier only_owner(bytes32 namehash) {

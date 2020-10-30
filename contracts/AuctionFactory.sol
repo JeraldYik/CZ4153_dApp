@@ -46,7 +46,7 @@ contract AuctionFactory {
         view
         returns (BlindAuction)
     {
-        bytes32 _namehash = registry.getOwnerNamehash(domain);
+        bytes32 _namehash = registry.getDomainNamehash(domain);
         // require(auctions[_namehash].namehash != 0, "Domain cannot be found");
         return auctions[_namehash];
     }

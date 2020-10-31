@@ -12,11 +12,11 @@ contract BlindAuction {
   bytes32 public namehash;
 
   // State variables
-  bool public canceled;
-  bool public hasEnded;
-  address public topBidder;
-  uint public topBid;
-  bool public ownerHasWithdrawn;
+  bool public canceled = false;
+  bool public hasEnded = false;
+  address public topBidder = address(0x0);
+  uint public topBid = 0;
+  bool public ownerHasWithdrawn = false;
 
   // Bid structure
   struct Bid {
@@ -35,8 +35,9 @@ contract BlindAuction {
   event LogWithdrawal(address withdrawer, uint256 amount);
   event AuctionEnded(address winner, uint highestBid);
   event LogCanceled();
+  event Test(uint64 msg);
 
-  constructor(uint256 _bidIncrement, uint256 _biddingTime, uint256 _revealTime, bytes32 _namehash) public {
+  constructor(uint256 _bidIncrement, uint256 _biddingTime, uint256 _revealTime, bytes32 _namehash) public payable {
     biddingEnd = block.timestamp + _biddingTime;
     revealEnd = biddingEnd + _revealTime;
     require(biddingEnd >= block.timestamp, "Time where bid ends has to be larger than current time");
@@ -46,8 +47,14 @@ contract BlindAuction {
     namehash = _namehash;
 }
 
+  function test(uint64 num) public returns (uint64 newnum) {
+    newnum = num + 2;
+    emit Test(newnum);
+    // return newnum;
+  }
+
   // function to derive bidHash
-  function bidHash(bytes32 _bidvalue, bool _fake, bytes32 _salt) pure public returns (bytes32 blindBid) {
+  function bidHash(bytes32 _bidvalue, bool _fake, bytes32 _salt) public pure returns (bytes32 blindBid) {
     blindBid = keccak256(abi.encodePacked(_bidvalue, _fake, _salt));
     return blindBid;
   }

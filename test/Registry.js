@@ -1,21 +1,27 @@
+const truffleAssert = require('truffle-assertions');
+
 const AuctionFactory = artifacts.require("AuctionFactory");
 const BlindAuction = artifacts.require("BlindAuction");
 const Registry = artifacts.require("Registry");
 const Resolver = artifacts.require("Resolver");
-const truffleAssert = require('truffle-assertions');
 
-// test Registry's functions
+// Test Registry's functions
+
 contract("Registry", async (accounts) => {
+  // Always deploy contract instance before any test
+  let registry;
+  beforeEach(async function() {
+    registry = await Registry.deployed();
+  });
+
   // accounts are the list of account created by the Truffle (i.e. 10 key pair)
   it("should make deployer the owner", async () => {
-    const registry = await Registry.deployed();
     const owner = await registry.owner();
     assert.equal(owner, accounts[0]);
   });
 
   it("can register a new domain", async () => {
     // 2nd wallet on Ganache registers a new domain CZ4153.ntu (Arrange)
-    const registry = await Registry.deployed();
     const buyer = accounts[1];
 
     // Call functions from Registry.sol (Act)
@@ -31,7 +37,6 @@ contract("Registry", async (accounts) => {
 
   it("can't register an existing domain", async () => {
     // 3rd wallet on Ganache attempts to register a new domain CZ4153.ntu (Arrange)
-    const registry = await Registry.deployed();
     const hacker = accounts[2];
 
     // Call functions from Registry.sol (Act)
@@ -46,7 +51,6 @@ contract("Registry", async (accounts) => {
 
   it("can transfer a domain", async() => {
     // Transfer domain from wallet 2 to wallet 3 on Ganache (Arrange)
-    const registry = await Registry.deployed();
     const initHolder = accounts[1];
     const finHolder = accounts[2];
     const namehash = await registry.getDomainNamehash.call("CZ4153");
@@ -65,7 +69,6 @@ contract("Registry", async (accounts) => {
   it("can't transfer a domain it does not own", async() => {
     // Transfering domain from wallet 3 to wallet 2 on Ganache,
     // except wallet 4 is trying to do it (Arrange)
-    const registry = await Registry.deployed();
     const initHolder = accounts[2];
     const finHolder = accounts[1];
     const hacker = accounts[3];
@@ -87,7 +90,7 @@ contract("Registry", async (accounts) => {
 });
 
 // Test Resolver's functions
-contract("Resolver", async (accounts) => {
-
-
-});
+// contract("Resolver", async (accounts) => {
+//
+//
+// });

@@ -12,7 +12,6 @@ contract Registry {
 
     struct Record {
         string domain;
-        bytes32 namehash;
         address owner;
         bool taken;
     }
@@ -32,7 +31,6 @@ contract Registry {
         // Push these information back to the Registry if domain is unregistered
         records[_namehash] = Record({
             domain: _domain,
-            namehash: _namehash,
             owner: _owner,
             taken: true
         });

@@ -49,7 +49,8 @@ contract AuctionFactory {
             bidIncrement,
             biddingTime,
             revealTime,
-            _namehash
+            _namehash,
+            address(uint160(address(owner)))
         );
         require(auctions[_namehash].ended == false, "The current domain is already registered");
         require(auctions[_namehash].taken == false, "The current domain is currently being bidded for");
@@ -81,15 +82,20 @@ contract AuctionFactory {
 
     // End ongoing auctions for a given domain name
     function endAuction(string memory domain)
-        public payable
+        public
     {
         bytes32 _namehash = registry.getDomainNamehash(domain);
         require(auctions[_namehash].ended == false, "Auction has already ended!");
         require(auctions[_namehash].taken == true, "No such ongoing auctions!");
-        BlindAuction auctionContract = auctions[_namehash].auctionContract;
         auctions[_namehash].ended = true;
-        address topBidder = auctionContract.auctionEnd();
-        registry.registerNewDomain(domain, topBidder);
+
+        // BlindAuction auctionContract = auctions[_namehash].auctionContract;
+        // address addr = address(auctionContract);
+        // address payable instanceAddr = address(uint160(addr));
+        // BlindAuction instance = BlindAuction(instanceAddr);
+        //
+        // address topBidder = instance.auctionEnd();
+        // registry.registerNewDomain(domain, topBidder);
     }
 
     // Returns number of ongoing auctions

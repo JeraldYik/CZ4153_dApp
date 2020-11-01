@@ -37,24 +37,18 @@ contract BlindAuction {
   event LogCanceled();
   event Test(uint64 msg);
 
-  constructor(uint256 _bidIncrement, uint256 _biddingTime, uint256 _revealTime, bytes32 _namehash) public payable {
+  constructor(uint256 _bidIncrement, uint256 _biddingTime, uint256 _revealTime, bytes32 _namehash, address payable _auctfact) public payable {
     biddingEnd = block.timestamp + _biddingTime;
     revealEnd = biddingEnd + _revealTime;
     require(biddingEnd >= block.timestamp, "Time where bid ends has to be larger than current time");
     require(revealEnd > block.timestamp, "Time where reveal ends has to be larger than current time");
-    owner = address(uint160(address(this)));
+    owner = _auctfact;
     bidIncrement = _bidIncrement;
     namehash = _namehash;
 }
 
-  function test(uint64 num) public returns (uint64 newnum) {
-    newnum = num + 2;
-    emit Test(newnum);
-    // return newnum;
-  }
-
   // function to derive bidHash
-  function bidHash(bytes32 _bidvalue, bool _fake, bytes32 _salt) public pure returns (bytes32 blindBid) {
+  function bidHash(uint _bidvalue, bool _fake, bytes32 _salt) public pure returns (bytes32 blindBid) {
     blindBid = keccak256(abi.encodePacked(_bidvalue, _fake, _salt));
     return blindBid;
   }
@@ -107,7 +101,7 @@ contract BlindAuction {
       // Make it impossible for the sender to re-claim the same deposit.
       bid.blindBid = bytes32(0);
     }
-    msg.sender.transfer(refund);
+    pendingReturns[msg.sender] += refund;
   }
 
   function placeBid(address bidder, uint value) internal returns (bool success) {
@@ -139,7 +133,7 @@ contract BlindAuction {
   }
 
   /// End the auction and send the highest bid to the owner of the contract
-  function auctionEnd() public onlyAfter(revealEnd) returns (address) {
+  function auctionEnd() public payable onlyAfter(revealEnd) returns (address) {
     require(!hasEnded, "Auction has not ended in the first place");
     emit AuctionEnded(topBidder, topBid);
     hasEnded = true;

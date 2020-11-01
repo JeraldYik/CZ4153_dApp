@@ -23,7 +23,6 @@ contract Registry {
     // Creating a new entry for a new registered domain
     function registerNewDomain(string memory _domain, address _owner)
         public
-        returns (bytes32 namehash)
     {
         bytes32 _namehash = getDomainNamehash(_domain);
         bool _taken = records[_namehash].taken;
@@ -37,14 +36,14 @@ contract Registry {
         recordsKeys.push(_namehash);
 
         emit NewDomain(_namehash, msg.sender, records[_namehash].domain, records[_namehash].taken);
-        return _namehash;
     }
 
-    function queryDomainOwner(string memory _domain) public view returns (address) {
-      address _owner;
-      bool _taken;
-      bytes32 _namehash = getDomainNamehash(_domain);
-      if (records[_namehash].taken == true) {
+    function queryDomainOwner(string memory _domain) public view returns (address)
+    {
+        address _owner;
+        bool _taken;
+        bytes32 _namehash = getDomainNamehash(_domain);
+        if (records[_namehash].taken == true) {
               _taken = records[_namehash].taken;
               _owner = records[_namehash].owner;
               return _owner;

@@ -116,13 +116,12 @@ contract Registry {
       string memory _domainName = "";
       bytes32 _currentNamehash;
       for (uint i = 0; i < recordsKeys.length; i++) {
-        _currentNamehash = recordsKeys[i];
-        if (records[_currentNamehash].owner == _owner) {
-            _domainName = records[_currentNamehash].domain;
-        }
-        require(
-            keccak256(abi.encodePacked((_domainName))) !=
-                keccak256(abi.encodePacked((""))),
+          _currentNamehash = recordsKeys[i];
+          if (records[_currentNamehash].owner == _owner) {
+              _domainName = records[_currentNamehash].domain;
+          }
+      }
+      require(keccak256(abi.encodePacked((_domainName))) != keccak256(abi.encodePacked((""))),
             "This address does not own a registered domain."
         );
         return _domainName;
@@ -141,9 +140,7 @@ contract Registry {
                 _domainName = records[_currentNamehash].domain;
             }
         }
-        require(
-            keccak256(abi.encodePacked((_domainName))) !=
-                keccak256(abi.encodePacked((""))),
+        require(keccak256(abi.encodePacked((_domainName))) != keccak256(abi.encodePacked((""))),
             "This address is not designated a registered domain."
         );
         return _domainName;

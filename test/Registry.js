@@ -4,7 +4,6 @@ const truffleAssert = require('truffle-assertions');
 const AuctionFactory = artifacts.require("AuctionFactory");
 const BlindAuction = artifacts.require("BlindAuction");
 const Registry = artifacts.require("Registry");
-const Resolver = artifacts.require("Resolver");
 
 // Test Registry's functions
 
@@ -93,7 +92,8 @@ contract("Registry and Resolver", async (accounts) => {
   });
 
   it("can set payable address", async() => {
-      await registry.setAddr("CZ4153", accounts[5], {
+    const namehash = await registry.getDomainNamehash.call("CZ4153");
+      await registry.setAddr(namehash, accounts[5], {
         from: accounts[2],
         gas: "400000"
       });
@@ -102,8 +102,9 @@ contract("Registry and Resolver", async (accounts) => {
   });
 
   it("cannot set payable if you're not the owner", async() => {
+    const namehash = await registry.getDomainNamehash.call("CZ4153");
     await truffleAssert.reverts(
-      registry.setAddr("CZ4153", accounts[5], {
+      registry.setAddr(namehash, accounts[5], {
         from: accounts[0],
         gas: "400000" }),
         "revert Only owner is authorised to perform this action!"

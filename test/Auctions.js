@@ -6,17 +6,18 @@ const Web3 = require('web3');
 const AuctionFactory = artifacts.require("AuctionFactory");
 const BlindAuction = artifacts.require("BlindAuction");
 const Registry = artifacts.require("Registry");
-const Resolver = artifacts.require("Resolver");
 
 // Test AuctionFactory's and BlindAuction's functions
 contract("AuctionFactory and BlindAuction", async (accounts) => {
   // Always deploy contract instance before any test
-  let  registry, auctionfactory, startTime, bidTimeEnd, revealTimeEnd, contract;
+  let  registry, auctionfactory, contract;
   beforeEach(async function() {
     // Advance to the next block to correctly read time in the solidity
     await time.advanceBlock();
 
     auctionfactory = await AuctionFactory.deployed();
+    const regAddr = await auctionfactory.registryAddr();
+    registry = new Registry(regAddr);
   });
 
 
@@ -126,9 +127,9 @@ contract("AuctionFactory and BlindAuction", async (accounts) => {
          auctionfactory.findAuction("CZ4153"),
          "revert Domain has already been registered"
         );
-    const regAddr = await auctionfactory.registryAddr();
-    const regInstance = new Registry(regAddr);
-    const domainHolder = await regInstance.queryDomainOwner.call("CZ4153");
+    // const regAddr = await auctionfactory.registryAddr();
+    // const regInstance = new Registry(regAddr);
+    const domainHolder = await registry.queryDomainOwner.call("CZ4153");
     assert.equal(accounts[1], domainHolder);
   });
 

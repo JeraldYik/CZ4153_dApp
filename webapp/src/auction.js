@@ -58,14 +58,25 @@ export const newDeposit = async (amount) => {
   }
 };
 
+const userAddress = {
+  1: '0xCf42FB6FcFD04dc60c60ff17866FD051Cd47dA72',
+  2: '0x0ea17d43cf7D42E06f0bdd334bd6c04fF7B900Fe'
+}
+
 // Auction
 export const getHighestBid = async (_auction) => {
   
 }
 
 // Auction
-export const placeBid = async () => {
-
+export const placeBid = async (user, value) => {
+  // function placeBid(address bidder, uint value)
+  const addr = userAddress[user];
+  await contract.methods.placeBid(addr, value).send({
+    from: addr,
+    gas: 4712388,
+    gasPrice: 100000000000
+  });
 }
 
 // Auction

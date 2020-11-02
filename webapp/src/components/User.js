@@ -9,7 +9,7 @@ const User = (props) => {
   }
 
   const handleSubmitNewBid = async () => {
-    await placeBid();
+    await placeBid(props.index, value);
   }
 
   const handleWithdraw = async () => {

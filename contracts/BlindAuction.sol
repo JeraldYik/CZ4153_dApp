@@ -42,7 +42,7 @@ contract BlindAuction {
     owner = _auctfact;
     bidIncrement = _bidIncrement;
     namehash = _namehash;
-}
+  }
 
 
   // Functions which changes state variables
@@ -93,7 +93,7 @@ contract BlindAuction {
           refund -= bidvalue;
       }
       // Make it impossible for the sender to re-claim the same deposit.
-      bid.blindBid = bytes32(0);
+      bid.blindBid = bytes32(0x00000000000000000000000000000000);
     }
     pendingReturns[msg.sender] += refund;
   }
@@ -105,7 +105,7 @@ contract BlindAuction {
         return false;
     }
     // Refund the previously highest bidder
-    if (topBidder != address(0)) {
+    if (topBidder != address(0x0)) {
       pendingReturns[topBidder] += topBid;
     }
     // changes the highest bid and the corresponding bidder

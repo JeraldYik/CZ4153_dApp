@@ -13,6 +13,7 @@ import {
 
 const App = () => {
   const [domainName, setDomainName] = useState('');
+  const [ownerAddr, setOwnerAddr] = useState('');
   const [highestBid, setHighestBid] = useState(0);
   const [users, setUsers] = useState([]);
   const [auctions, setAuctions] = useState([]);
@@ -24,7 +25,7 @@ const App = () => {
 
   useEffect(() => {
     const _users = [];
-    for (var i=0; i<NUM_USERS; i++) {
+    for (var i=1; i<=NUM_USERS; i++) {
       _users.push(<User index={i} />);
     }
     setUsers(_users);
@@ -35,8 +36,9 @@ const App = () => {
   }
 
   const handleCreateAuction = async () => {
-    let newAuction = await createAuction(BID_INCREMENT, BIDDING_TIME, REVEAL_TIME, domainName);
+    let { newAuction, ownerAddr } = await createAuction(BID_INCREMENT, BIDDING_TIME, REVEAL_TIME, domainName);
     setAuctions([...auctions, newAuction]);
+    setOwnerAddr(ownerAddr);
   }
 
   const handleCancelAuction = async () => {
@@ -51,7 +53,7 @@ const App = () => {
 
   return (
     <>
-      <h1>Welcome to Auction dApp</h1>
+      <h1>Welcome to Auction dDNS dApp</h1>
       <p>Bank Contract Address: {ContractAddress}</p>
       <p>Network: {Testnet}</p>
       <hr />
@@ -71,6 +73,8 @@ const App = () => {
           value="Create Auction"
           onClick={handleCreateAuction}
         />
+        <p>{ownerAddr !== '' && `Auction for Domain ${domainName}.ntu created!`}</p>
+        <p>{ownerAddr !== '' && `Owner's address: ${ownerAddr}`}</p>
         <p>Highest bid: {highestBid}</p>
         <button onClick={handleGetHighestBid}>Get Highest Bid</button>
         <button onClick={handleCancelAuction}>Cancel Auction</button>

@@ -100,7 +100,7 @@ contract Registry {
         require(_taken == true, "This domain is available.");
     }
 
-    function queryDomainPayableAddr(string memory _domain) public view returns (address)
+    function queryDomainPayableAddr(string memory _domain) public view returns (address payable)
     {
         bool _taken;
         bytes32 _namehash = getDomainNamehash(_domain);
@@ -174,14 +174,6 @@ contract Registry {
     // Calls the deployed registry address
     function getRegAddress() public view returns (address) {
         return address(this);
-    }
-
-    function getCurrentPayableAddress(bytes32 _namehash)
-        public
-        view
-        returns (address payable)
-    {
-        return records[_namehash].currentPayableAddr;
     }
 
     modifier only_owner(bytes32 namehash) {

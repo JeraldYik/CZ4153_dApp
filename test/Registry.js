@@ -63,11 +63,9 @@ contract("Registry and Resolver", async (accounts) => {
       gas: "400000"
     });
     const newHolder = await registry.queryDomainOwner.call("CZ4153");
-    const newPayableAddr = await registry.getCurrentPayableAddress.call(namehash);
 
     // Check results (Assert)
     assert.equal(newHolder, finHolder);
-    assert.equal(newPayableAddr, finHolder);
   });
 
   it("can't transfer a domain it does not own", async() => {
@@ -101,7 +99,7 @@ contract("Registry and Resolver", async (accounts) => {
     assert.equal(payableAddr, accounts[5]);
   });
 
-  it("cannot set payable if you're not the owner", async() => {
+  it("cannot set payable address if you're not the owner", async() => {
     const namehash = await registry.getDomainNamehash.call("CZ4153");
     await truffleAssert.reverts(
       registry.setAddr(namehash, accounts[5], {
@@ -110,5 +108,26 @@ contract("Registry and Resolver", async (accounts) => {
         "revert Only owner is authorised to perform this action!"
       )
   });
+
+  it("can query domain owner from domain", async() => {
+    const domainOwner = await registry.queryDomainOwner.call("CZ4153");
+    assert.equal(accounts[2], domainOwner);
+  });
+
+  it("can query payable address from domain", async() => {
+    const domainPayableAddr = await registry.queryDomainPayableAddr.call("CZ4153");
+    assert.equal(accounts[5], domainPayableAddr);
+  });
+
+  it("can query domain from owner address", async() => {
+    const domain = await registry.queryDomainFromOwner.call(accounts[2]);
+    assert.equal(domain, "CZ4153");
+  });
+
+  it("can query domain from payable address", async() => {
+    const domain = await registry.queryDomainFromPayableAddr.call(accounts[5]);
+    assert.equal(domain, "CZ4153");
+  });
+
 
 });

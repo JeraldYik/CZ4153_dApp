@@ -46,3 +46,22 @@ export const cancelAuction = async (_domain) => {
 export const findAuction = async (_domain) => {
   return await contract.methods.findAuction(_domain).call();
 }
+
+// Auction
+export const getHighestBid = async (_auction) => {
+  
+}
+
+// Auction
+export const placeBid = async (user, value) => {
+  // function placeBid(address bidder, uint value)
+  const addr = userAddress[user];
+  await contract.methods.placeBid(addr, value).send({
+    from: addr,
+    gas: 4712388,
+    gasPrice: 100000000000
+  });
+}
+
+// Auction
+export const withdraw = async () => {

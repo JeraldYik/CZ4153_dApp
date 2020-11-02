@@ -1,14 +1,12 @@
 import React, {useState, useEffect} from "react";
 import User from './components/User';
 import {
-  getHighestBid
-} from "./auction.js";
-import {
   ContractAddress,
   Testnet,
   createAuction,
   cancelAuction,
-  findAuction
+  findAuction,
+  getHighestBid
 } from "./auctionFactory.js"
 
 const App = () => {

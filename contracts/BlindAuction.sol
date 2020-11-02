@@ -34,12 +34,12 @@ contract BlindAuction {
   event LogCanceled();
   event Test(uint64 msg);
 
-  constructor(uint256 _bidIncrement, uint256 _biddingTime, uint256 _revealTime, bytes32 _namehash, address payable _auctfact) public payable {
+  constructor(uint256 _bidIncrement, uint256 _biddingTime, uint256 _revealTime, bytes32 _namehash, address payable _auctfactowner) public payable {
     biddingEnd = block.timestamp + _biddingTime;
     revealEnd = biddingEnd + _revealTime;
     require(biddingEnd >= block.timestamp, "Time where bid ends has to be larger than current time");
     require(revealEnd > block.timestamp, "Time where reveal ends has to be larger than current time");
-    owner = _auctfact;
+    owner = _auctfactowner;
     bidIncrement = _bidIncrement;
     namehash = _namehash;
 }
@@ -159,7 +159,7 @@ contract BlindAuction {
   // The new function body is the modifier's body, where `_` represents the old function body.
   modifier onlyBefore(uint _time) { require(block.timestamp < _time, "block.timestamp must be before _time"); _; }
   modifier onlyAfter(uint _time) { require(block.timestamp > _time, "block.timestamp must be after _time"); _; }
-  modifier onlyEndedOrCanceled { require(hasEnded && canceled, "Auction is still ongoing"); _; }
+  modifier onlyEndedOrCanceled { require(hasEnded || canceled, "Auction is still ongoing"); _; }
   modifier onlyOwner { require(msg.sender == owner, "Only owner can call this function."); _; }
   modifier onlyNotCanceled { require(!canceled, "Auction has not been cancelled"); _; }
 

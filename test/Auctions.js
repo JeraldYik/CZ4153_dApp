@@ -133,4 +133,38 @@ contract("AuctionFactory and BlindAuction", async (accounts) => {
     assert.equal(accounts[1], domainHolder);
   });
 
+  it("owner should be able to cancel ongoing bids", async () => {
+    contract = await auctionfactory.createAuction.call(50000,90,90,"4153");
+    await auctionfactory.createAuction(50000,90,90,"4153");
+    const addr = await auctionfactory.findAuction.call("4153");
+    const contractinstance = new BlindAuction(contract);
+
+    // This can occur anytime before revealEnd
+    await contractinstance.cancelAuction({
+      from: accounts[0],
+      gas: "400000"
+    });
+
+    const bidvalue = 100000;
+    const fake = false;
+    const saltinbytes = web3.utils.fromAscii("password");
+    const bidHash = await contractinstance.bidHash.call(bidvalue, fake, saltinbytes);
+    await contractinstance.commitBid(bidHash, {
+      from: accounts[1],
+      value: 100000,
+      gas: "400000"
+    });
+    await time.increase(91);
+    // Still have to reveal your bid if you want the refund
+    await contractinstance.revealBid([bidvalue],[fake],[saltinbytes], {
+      from: accounts[1],
+      gas: "400000"
+    });
+    const txn = await contractinstance.withdraw({
+      from: accounts[1],
+      gas: "400000"
+    });
+    console.log(txn);
+  });
+
 });

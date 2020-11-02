@@ -12,14 +12,19 @@ contract Registry {
     }
 
     struct Record {
-        string domain;
+        address payable currentPayableAddr;
         address owner;
+        string domain;
         bool taken;
     }
 
     // Events to log significant events occuring within the registry
     event NewDomain(bytes32 indexed namehash, address owner, string domain, bool taken, address contractAddr);
     event Transfer(bytes32 indexed namehash, address owner);
+    event AddrChanged(bytes32 indexed namehash, address walletaddress);
+
+
+    // Functions which changes state variables
 
     // Creating a new entry for a new registered domain
     function registerNewDomain(string memory _domain, address _owner)
@@ -30,8 +35,9 @@ contract Registry {
         require(_taken == false, "This domain has been registered.");
         // Push these information back to the Registry if domain is unregistered
         records[_namehash] = Record({
-            domain: _domain,
+            currentPayableAddr: address(0x0),
             owner: _owner,
+            domain: _domain,
             taken: true
         });
         recordsKeys.push(_namehash);
@@ -39,6 +45,27 @@ contract Registry {
         emit NewDomain(_namehash, msg.sender, records[_namehash].domain, records[_namehash].taken, test);
     }
 
+    // Transfer domain ownership, callable only by owner
+    function transferOwner(bytes32 _namehash, address _newowner)
+        public
+        only_owner(_namehash)
+    {
+        emit Transfer(_namehash, _newowner);
+        records[_namehash].owner = _newowner;
+    }
+
+    // Designate a payable address for the registered domain
+    function setAddr(bytes32 _namehash, address payable _yourwalletaddr) public {
+      address currentOwner = records[_namehash].owner;
+      require(msg.sender == currentOwner, "Only owner is authorised to perform this action!");
+
+      records[_namehash].currentPayableAddr = _yourwalletaddr;
+      emit AddrChanged(_namehash, _yourwalletaddr);
+    }
+
+    // Functions that do not change state variables (Callable functiosn)
+
+    // Find the domain owner from
     function queryDomainOwner(string memory _domain) public view returns (address)
     {
         address _owner;
@@ -52,16 +79,35 @@ contract Registry {
       require(_taken == true, "This domain is available.");
     }
 
-    // Transfer domain ownership, callable only by owner
-    function transferOwner(bytes32 _namehash, address _newowner)
-        public
-        only_owner(_namehash)
-    {
-        emit Transfer(_namehash, _newowner);
-        records[_namehash].owner = _newowner;
+    function queryDomainFromOwner(address _owner) public view returns (string memory domainName) {
+      string memory _domainName = "";
+      bytes32 _currentNamehash;
+      for (uint i = 0; i < recordsKeys.length; i++) {
+        _currentNamehash = recordsKeys[i];
+        if (records[_currentNamehash].owner == _owner) {
+            _domainName = records[_currentNamehash].domain;
+        }
+      }
+      require(keccak256(abi.encodePacked((_domainName))) != keccak256(abi.encodePacked((""))), "This address does not own a registered domain.");
+      return _domainName;
+    }
+
+    function queryDomainFromPayableAddr(address _payableAddr) public view returns (string memory domainName) {
+      string memory _domainName = "";
+      bytes32 _currentNamehash;
+      for (uint i = 0; i < recordsKeys.length; i++) {
+        _currentNamehash = recordsKeys[i];
+        if (records[_currentNamehash].currentPayableAddr == _payableAddr) {
+            _domainName = records[_currentNamehash].domain;
+        }
+      }
+      require(keccak256(abi.encodePacked((_domainName))) != keccak256(abi.encodePacked((""))), "This address is not designated a registered domain.");
+      return _domainName;
     }
 
     // Pure functions and modifiers
+
+    // Derive the domainNamehash for any given domain
     function getDomainNamehash(string memory _domain)
         public
         pure
@@ -85,6 +131,7 @@ contract Registry {
         }
     }
 
+    // Calls the deployed registry address
     function getRegAddress()
       public
       view

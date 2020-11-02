@@ -90,6 +90,7 @@ contract AuctionFactory {
         registry.registerNewDomain(domain, topBidder);
     }
 
+
     // Functions that do not change state variables (Callable functiosn)
 
     // Call registry address
@@ -158,6 +159,7 @@ contract AuctionFactory {
         }
         return (domainName);
     }
+
 
     // Pure functions and modifiers
 

@@ -3,25 +3,40 @@ pragma solidity >=0.4.22 <0.8.0;
 contract Resolver {
   constructor () public {}
 
+  // Declaring a struct holding domain's information
+  struct DomainInfo {
+    address payable currentPayableAddr;
+    address domainOwner;
+    bytes32 domainNamehash;
+    string domainName;
+  }
+
+  // Declaring events to be emitted
   event AddrChanged(bytes32 indexed namehash, address walletaddress);
 
-  // Stores owner's namehash and address for his/her owned domain
-  address owner;
+  // Mapping a 32bytes domainNamehash to the corresponding DomainInfo
+  mapping(bytes32=>DomainInfo) private getDomainInfo;
 
-  mapping(bytes32=>address) addresses;
+  // Functions which changes state variables
 
-  function addr(bytes32 _namehash) view public returns(address) {
-    return addresses[_namehash];
-  }
+  // Set address for the corresponding domain name
+  function setAddr(bytes32 _namehash, address _yourwalletaddr) public {
+    address currentOwner = getDomainInfo[_namehash].domainOwner;
+    require(msg.sender == currentOwner, "Only owner is authorised to perform this action!");
 
-  function setAddr(bytes32 _namehash, address _yourwalletaddr) only_owner() public {
-    addresses[_namehash] = _yourwalletaddr;
+    getDomainInfo[_namehash].domainOwner = _yourwalletaddr;
     emit AddrChanged(_namehash, _yourwalletaddr);
   }
+
+
+  // Functions that do not change state variables (Callable functions)
+  // function addr(bytes32 _namehash) view public returns(memory DomainInfo) {
+  //   return getDomainInfo[_namehash];
+  // }
+
 
   // function supportsInterface(bytes4 interfaceID) constant returns (bool) {
   //     return interfaceID == 0x3b3b57de || interfaceID == 0x01ffc9a7;
   // }
 
-  modifier only_owner() {require(msg.sender == owner, "Only owner is authorised to perform this action!"); _; }
 }

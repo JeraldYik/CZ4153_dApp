@@ -126,8 +126,8 @@ contract("AuctionFactory and BlindAuction", async (accounts) => {
          auctionfactory.findAuction("CZ4153"),
          "revert Domain has already been registered"
         );
-    const testAddr = await auctionfactory.registryAddr();
-    const regInstance = new Registry(testAddr);
+    const regAddr = await auctionfactory.registryAddr();
+    const regInstance = new Registry(regAddr);
     const domainHolder = await regInstance.queryDomainOwner.call("CZ4153");
     assert.equal(accounts[1], domainHolder);
   });

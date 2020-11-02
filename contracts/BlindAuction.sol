@@ -12,9 +12,8 @@ contract BlindAuction {
   // State variables
   bool public canceled = false;
   bool public hasEnded = false;
-  address public topBidder = address(0x0);
-  uint public topBid = 0;
-  bool public ownerHasWithdrawn = false;
+  address private topBidder = address(0x0);
+  uint private topBid = 0;
 
   // Bid structure
   struct Bid {
@@ -24,7 +23,7 @@ contract BlindAuction {
     bool revealed;
   }
   // mapping an address to Bid's structure, method called bids
-  mapping (address => Bid[]) public bids;
+  mapping (address => Bid[]) private bids;
 
   // Allowed withdrawals of previous bids
   mapping(address => uint) pendingReturns;
@@ -45,13 +44,10 @@ contract BlindAuction {
     namehash = _namehash;
 }
 
-  // function to derive bidHash
-  function bidHash(uint _bidvalue, bool _fake, bytes32 _salt) public pure returns (bytes32 blindBid) {
-    blindBid = keccak256(abi.encodePacked(_bidvalue, _fake, _salt));
-    return blindBid;
-  }
 
-  // Commit portion of blind auction
+  // Functions which changes state variables
+
+  // Commit part of blind auction
   function commitBid(bytes32 _blindBid) public payable onlyBefore(biddingEnd){
     // Place a blinded bid with `_blindBid` = keccak256(bidvalue, fake, salt)
     bids[msg.sender].push(Bid({
@@ -62,7 +58,7 @@ contract BlindAuction {
     }));
   }
 
-  // Revealing portion of blind auction
+  // Reveal part of blind auction
   function revealBid(uint[] memory _bidvalue, bool[] memory _fake, bytes32[] memory _salt) public onlyAfter(biddingEnd) onlyBefore(revealEnd) {
 
     // Tallying all responses from 1 bidder
@@ -102,24 +98,28 @@ contract BlindAuction {
     pendingReturns[msg.sender] += refund;
   }
 
+  // Places the bid if it is larger than the next increment
   function placeBid(address bidder, uint value) internal returns (bool success) {
     // This negates any revealed bid which is not currently higher than the highest
-    if (value <= topBid) {
+    if (value <= topBid + bidIncrement) {
         return false;
     }
+    // Refund the previously highest bidder
     if (topBidder != address(0)) {
-      // Refund the previously highest bidder
       pendingReturns[topBidder] += topBid;
     }
-    // changes the highest bid and the correspodning bidder
-    topBid = topBid + bidIncrement;
+    // changes the highest bid and the corresponding bidder
+    // increases bid in increments till it hits the range the bidder was willing to pay
+    while (value > topBid + bidIncrement) {
+        topBid = topBid + bidIncrement;
+    }
     topBidder = bidder;
     // Refunds the excess to the current bidder
     pendingReturns[topBidder] = value - topBid;
     return true;
   }
 
-  /// Withdraw a bid that was out-bidded
+  /// Withdraw the unused deposits
   function withdraw() onlyEndedOrCanceled public {
     uint amount = pendingReturns[msg.sender];
     if (amount > 0) {
@@ -139,10 +139,20 @@ contract BlindAuction {
     return topBidder;
   }
 
+  // Cancelling the auction for whatever reasons
   function cancelAuction() public onlyOwner onlyBefore(revealEnd) onlyNotCanceled returns (bool success) {
     canceled = true;
     emit LogCanceled();
     return true;
+  }
+
+
+  // Pure functions and modifiers
+
+  // function to derive bidHash
+  function bidHash(uint _bidvalue, bool _fake, bytes32 _salt) public pure returns (bytes32 blindBid) {
+    blindBid = keccak256(abi.encodePacked(_bidvalue, _fake, _salt));
+    return blindBid;
   }
 
   // Modifiers to validate inputs to functions. For instance `onlyBefore` is applied to `commitBid`

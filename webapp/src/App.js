@@ -12,6 +12,7 @@ import {
 const App = () => {
   const [domainName, setDomainName] = useState('');
   const [ownerAddr, setOwnerAddr] = useState('');
+  const [canceled, setCanceled] = useState(false);
   const [highestBid, setHighestBid] = useState(0);
   const [users, setUsers] = useState([]);
   const [auctions, setAuctions] = useState([]);
@@ -40,7 +41,12 @@ const App = () => {
   }
 
   const handleCancelAuction = async () => {
-    await cancelAuction(domainName);
+    const canceled = await cancelAuction(domainName);
+    if (canceled) {
+      setCanceled(true);
+      setDomainName('');
+      setOwnerAddr('');
+    }
   }
 
   const handleGetHighestBid = async () => {
@@ -63,6 +69,7 @@ const App = () => {
           placeholder="domain"
           value={domainName}
           onChange={handleDomainNameChange}
+          disabled={ownerAddr !== ''}
         />
         <label for="domain-name">.ntu</label>
         <br />
@@ -70,12 +77,14 @@ const App = () => {
           type="submit"
           value="Create Auction"
           onClick={handleCreateAuction}
+          disabled={ownerAddr !== ''}
         />
         <p>{ownerAddr !== '' && `Auction for Domain ${domainName}.ntu created!`}</p>
         <p>{ownerAddr !== '' && `Owner's address: ${ownerAddr}`}</p>
+        <p>{canceled && 'Auction has ended'}</p>
         <p>Highest bid: {highestBid}</p>
         <button onClick={handleGetHighestBid}>Get Highest Bid</button>
-        <button onClick={handleCancelAuction}>Cancel Auction</button>
+        <button onClick={handleCancelAuction}>End Auction</button>
       </div>
       {users}
     </>

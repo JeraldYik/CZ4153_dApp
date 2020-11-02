@@ -135,7 +135,7 @@ contract BlindAuction {
     require(!hasEnded, "Auction has not ended in the first place");
     emit AuctionEnded(topBidder, topBid);
     hasEnded = true;
-    // owner.transfer(topBid);
+    owner.transfer(topBid);
     return topBidder;
   }
 

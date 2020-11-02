@@ -36,7 +36,7 @@ contract("AuctionFactory and BlindAuction", async (accounts) => {
   // Able to accept valid bids during bidding period and reveal bids after it ends
   it("should be able to accept bids during an ongoing Auction successfully", async () => {
     const contractinstance = new BlindAuction(contract);
-    const bidvalue = 3;
+    const bidvalue = 100000;
     const fake = false;
     const saltinbytes = web3.utils.fromAscii("password");
     const bidHash = await contractinstance.bidHash.call(bidvalue, fake, saltinbytes);
@@ -45,7 +45,7 @@ contract("AuctionFactory and BlindAuction", async (accounts) => {
     // Send bid in
     const txn = await contractinstance.commitBid(bidHash, {
       from: bidder,
-      value: 3,
+      value: 100000,
       gas: "400000"
     });
 
@@ -58,7 +58,7 @@ contract("AuctionFactory and BlindAuction", async (accounts) => {
   // Cannot reveal bids before revealTime
   it("should not be able to reveal bids before revealTime", async () => {
     const contractinstance = new BlindAuction(contract);
-    const bidvalue = 3;
+    const bidvalue = 100000;
     const fake = false;
     const saltinbytes = web3.utils.fromAscii("password");
     await truffleAssert.reverts(
@@ -70,7 +70,7 @@ contract("AuctionFactory and BlindAuction", async (accounts) => {
   // Can reveal but cannot bid after bidTime is over
   it("should not be able to bid but able to reveal after bidTIme and before revealTime", async () => {
     const contractinstance = new BlindAuction(contract);
-    const bidvalue = 3;
+    const bidvalue = 100000;
     const fake = false;
     const saltinbytes = web3.utils.fromAscii("password");
     const bidHash = await contractinstance.bidHash.call(bidvalue, fake, saltinbytes);

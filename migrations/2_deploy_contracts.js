@@ -4,6 +4,6 @@ var Registry = artifacts.require("Registry")
 module.exports = function(deployer) {
   deployer.deploy(AuctionFactory);
 
-  // This doesn't needs to be deployed for actual migration, only for unit testing
+  // Comment this line out for actual deployer
   deployer.deploy(Registry);
 };

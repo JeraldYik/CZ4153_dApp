@@ -169,7 +169,7 @@ contract Registry {
     }
 
     // Calls the deployed registry address
-    function getRegAddress() public view returns (address _contract) {
+    function getRegAddress() public view returns (address) {
         return address(this);
     }
 

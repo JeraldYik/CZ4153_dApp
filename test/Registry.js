@@ -13,6 +13,8 @@ contract("Registry and Resolver", async (accounts) => {
   let registry;
   beforeEach(async function() {
     registry = await Registry.deployed();
+    const testGetRegAddress = await registry.getRegAddress.call();
+    assert(registry.address, testGetRegAddress);
   });
 
   // accounts are the list of account created by the Truffle (i.e. 10 key pair)
@@ -90,14 +92,14 @@ contract("Registry and Resolver", async (accounts) => {
     assert.equal(newHolder, initHolder);
   });
 
+  it("test getRegAddress()", async () => {
+
+  });
+
   // payDomainPayableAddr
 
   // queryDomainFromOwner
 
   // queryDomainFromPayableAddr
-
-  // getDomainNamehash
-
-  // getRegAddress
 
 });

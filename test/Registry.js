@@ -1,3 +1,4 @@
+const { assert } = require('chai');
 const truffleAssert = require('truffle-assertions');
 
 const AuctionFactory = artifacts.require("AuctionFactory");
@@ -7,7 +8,7 @@ const Resolver = artifacts.require("Resolver");
 
 // Test Registry's functions
 
-contract("Registry", async (accounts) => {
+contract("Registry and Resolver", async (accounts) => {
   // Always deploy contract instance before any test
   let registry;
   beforeEach(async function() {
@@ -61,9 +62,11 @@ contract("Registry", async (accounts) => {
       gas: "400000"
     });
     const newHolder = await registry.queryDomainOwner.call("CZ4153");
+    const newPayableAddr = await registry.getCurrentPayableAddress.call(namehash);
 
     // Check results (Assert)
     assert.equal(newHolder, finHolder);
+    assert.equal(newPayableAddr, finHolder);
   });
 
   it("can't transfer a domain it does not own", async() => {
@@ -87,10 +90,14 @@ contract("Registry", async (accounts) => {
     assert.equal(newHolder, initHolder);
   });
 
-});
+  // payDomainPayableAddr
 
-// Test Resolver's functions
-// contract("Resolver", async (accounts) => {
-//
-//
-// });
+  // queryDomainFromOwner
+
+  // queryDomainFromPayableAddr
+
+  // getDomainNamehash
+
+  // getRegAddress
+
+});

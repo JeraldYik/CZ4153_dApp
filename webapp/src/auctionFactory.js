@@ -11,7 +11,7 @@ import artifactA from "./contracts/Auction.json";
 
 // const myAddress = process.env.METAMASK_ACCOUNT; // PLEASE CHANGE IT TO YOURS
 // const infuraWSS = process.env.INFURA_WSS; // PLEASE CHANGE IT TO YOURS
-const infuraWSS = 'wss://ropsten.infura.io/ws/v3/3537874f2c17447e8f2dc9ceb1beae0f'; // change this to your own I haven't found a way to import .env from root
+// const infuraWSS = 'wss://ropsten.infura.io/ws/v3/3537874f2c17447e8f2dc9ceb1beae0f'; // change this to your own I haven't found a way to import .env from root
 
 // console.log('process.env.INFURA_WSS', process.env.INFURA_WSS)
 
@@ -61,10 +61,16 @@ export const getHighestBid = async (_auction) => {
 }
 
 // Auction
-export const placeBid = async (user, value) => {
-  // function placeBid(address bidder, uint value)
+export const commitBid = async (user, value, fake, salt) => {
+  // function commitBid(bytes32 _blindBid)
+  console.log({fake});
   const addr = userAddresses[user];
-  await contractA.methods.placeBid(addr, value).send({
+  const hash = await contractA.methods.bidHash(value, fake, salt).call({
+    from: addr,
+    gas: 4712388,
+    gasPrice: 100000000000
+  });
+  await contractA.methods.commitBid(hash).send({
     from: addr,
     gas: 4712388,
     gasPrice: 100000000000

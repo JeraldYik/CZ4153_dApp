@@ -63,6 +63,14 @@ contract Registry {
       emit AddrChanged(_namehash, _yourwalletaddr);
     }
 
+    // Pay a domain's payableAddr ether
+    function payDomainPayableAddr(string memory _domain) public payable {
+      bytes32 _namehash = getDomainNamehash(_domain);
+      address payable _currentPayableAddr = records[_namehash].currentPayableAddr;
+      _currentPayableAddr.transfer(msg.value);
+    }
+
+
     // Functions that do not change state variables (Callable functiosn)
 
     // Find the domain owner from

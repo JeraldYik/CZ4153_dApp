@@ -93,12 +93,12 @@ contract("Registry and Resolver", async (accounts) => {
 
   it("can set payable address", async() => {
     const namehash = await registry.getDomainNamehash.call("CZ4153");
-      await registry.setAddr(namehash, accounts[5], {
-        from: accounts[2],
-        gas: "400000"
-      });
-      const payableAddr = await registry.queryDomainPayableAddr.call("CZ4153");
-      assert.equal(payableAddr, accounts[5]);
+    await registry.setAddr(namehash, accounts[5], {
+      from: accounts[2],
+      gas: "400000"
+    });
+    const payableAddr = await registry.queryDomainPayableAddr.call("CZ4153");
+    assert.equal(payableAddr, accounts[5]);
   });
 
   it("cannot set payable if you're not the owner", async() => {

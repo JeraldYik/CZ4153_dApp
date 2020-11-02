@@ -114,9 +114,8 @@ contract Registry {
 
     function queryDomainFromOwner(address _owner) public view returns (string memory domainName) {
       string memory _domainName = "";
-      bytes32 _currentNamehash;
       for (uint i = 0; i < recordsKeys.length; i++) {
-          _currentNamehash = recordsKeys[i];
+          bytes32 _currentNamehash = recordsKeys[i];
           if (records[_currentNamehash].owner == _owner) {
               _domainName = records[_currentNamehash].domain;
           }

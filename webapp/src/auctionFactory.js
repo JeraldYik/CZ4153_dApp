@@ -15,7 +15,7 @@ const infuraWSS = 'wss://ropsten.infura.io/ws/v3/3537874f2c17447e8f2dc9ceb1beae0
 // console.log('process.env.INFURA_WSS', process.env.INFURA_WSS)
 
 // export const ContractAddress = "0x07A6EdB8ec67Ae0e8DC7A4EB07EE42cFC821483E"; // PLEASE CHANGE IT TO YOURS
-export const ContractAddress = "0xa47822ff13e718b03b046fb2627551c12a3e4494";
+export const ContractAddress = "0xcfdc4ec61e7f8527e2d5dcc7e5901db0bd299325";
 export const Testnet = "ropsten"; // PLEASE CHANGE IT TO YOURS
 
 // const web3 = new Web3(
@@ -23,15 +23,18 @@ export const Testnet = "ropsten"; // PLEASE CHANGE IT TO YOURS
 // );
 // FOR TESTING
 // const web3 = new Web3.providers.HttpProvider("http://127.0.0.1:8545");
-const web3 = new Web3(Web3.currentProvider);
+const web3 = new Web3();
+web3.setProvider(new Web3.providers.HttpProvider("http://localhost:8545"));
 // doc here: https://web3js.readthedocs.io/en/v1.2.11/web3.html#providers
 const contract = new web3.eth.Contract(artifact.abi, ContractAddress);
 
 // AuctionFactory
 export const createAuction = async (_bidIncrement, _biddingTime, _revealTime, _domain) => {
-  return await contract.methods.createAuction(_bidIncrement, _biddingTime, _revealTime, _domain).send().then(
-    console.log
-  );
+  return await contract.methods.createAuction(_bidIncrement, _biddingTime, _revealTime, _domain).send({
+    from: '0xFd55d965Fb9f2E53Fc0071B6fd8aCffe13Bda55E'
+  }, (err) => {
+    console.log({err})
+  });
 }
 
 export const cancelAuction = async (_domain) => {

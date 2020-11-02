@@ -4,7 +4,8 @@ var Resolver = artifacts.require("Resolver")
 
 module.exports = function(deployer) {
   deployer.deploy(Resolver);
-  deployer.deploy(Registry).then(function() {
-    return deployer.deploy(AuctionFactory, Registry.address);
-  });
+  deployer.deploy(AuctionFactory);
+
+  // This doesn't needs to be deployed for actual migration, only for unit testing
+  deployer.deploy(Registry);
 };

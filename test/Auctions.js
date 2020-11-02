@@ -11,7 +11,7 @@ const Resolver = artifacts.require("Resolver");
 // Test AuctionFactory's and BlindAuction's functions
 contract("AuctionFactory and BlindAuction", async (accounts) => {
   // Always deploy contract instance before any test
-  let auctionfactory, startTime, bidTimeEnd, revealTimeEnd, contract;
+  let  registry, auctionfactory, startTime, bidTimeEnd, revealTimeEnd, contract;
   beforeEach(async function() {
     // Advance to the next block to correctly read time in the solidity
     await time.advanceBlock();
@@ -118,18 +118,18 @@ contract("AuctionFactory and BlindAuction", async (accounts) => {
 
   });
 
-  // Able to end ongoing bids
+  // Able to end ongoing bids and register domain to the topBidder
   it("should be able to end ongoing bids and register new domains", async () => {
+    // await auctionfactory.testEndAuction.call("CZ4153");
     await auctionfactory.endAuction("CZ4153");
     await truffleAssert.reverts(
          auctionfactory.findAuction("CZ4153"),
          "revert Domain has already been registered"
         );
-    // Insert register test part here    
-
+    const testAddr = await auctionfactory.registryAddr();
+    const regInstance = new Registry(testAddr);
+    const domainHolder = await regInstance.queryDomainOwner.call("CZ4153");
+    assert.equal(accounts[1], domainHolder);
   });
-
-
-
 
 });

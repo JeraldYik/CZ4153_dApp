@@ -9,7 +9,7 @@ contract AuctionFactory {
     mapping(bytes32 => AuctionParam) public auctions;
     bytes32[] public auctionKeys;
     address public owner;
-    address public regAddr;
+
     // Instantiating new Registry
     Registry registry = new Registry();
 
@@ -28,13 +28,18 @@ contract AuctionFactory {
 
     event AuctionEnded(address topBidder, uint256 topBid);
 
-    constructor(address addr) public {
+    constructor() public {
       owner = msg.sender;
-      regAddr = addr;
+    }
+
+    // Call registry address
+    function registryAddr() public view returns (address) {
+      address regAddr = registry.getRegAddress();
+      return regAddr;
     }
 
     // Creating new auctions
-    function createAuction(
+    function createAuction (
         uint256 bidIncrement,
         uint256 biddingTime,
         uint256 revealTime,
@@ -89,13 +94,20 @@ contract AuctionFactory {
         require(auctions[_namehash].taken == true, "No such ongoing auctions!");
         auctions[_namehash].ended = true;
 
-        // BlindAuction auctionContract = auctions[_namehash].auctionContract;
-        // address addr = address(auctionContract);
-        // address payable instanceAddr = address(uint160(addr));
-        // BlindAuction instance = BlindAuction(instanceAddr);
+        BlindAuction auctionContract = auctions[_namehash].auctionContract;
+        address addr = address(auctionContract);
+        address payable instanceAddr = address(uint160(addr));
+        BlindAuction instance = BlindAuction(instanceAddr);
         //
-        // address topBidder = instance.auctionEnd();
-        // registry.registerNewDomain(domain, topBidder);
+        address topBidder = instance.auctionEnd();
+        registry.registerNewDomain(domain, topBidder);
+    }
+
+    function testEndAuction(string memory domain)
+        public
+    {
+      address testTopBidder = address(0x0);
+      registry.registerNewDomain(domain, testTopBidder);
     }
 
     // Returns number of ongoing auctions

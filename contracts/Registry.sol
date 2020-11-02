@@ -5,6 +5,7 @@ contract Registry {
     address public owner;
     mapping(bytes32 => Record) public records;
     bytes32[] public recordsKeys;
+    address public test = address(this);
 
     constructor() public {
       owner = msg.sender;
@@ -17,7 +18,7 @@ contract Registry {
     }
 
     // Events to log significant events occuring within the registry
-    event NewDomain(bytes32 indexed namehash, address owner, string domain, bool taken);
+    event NewDomain(bytes32 indexed namehash, address owner, string domain, bool taken, address contractAddr);
     event Transfer(bytes32 indexed namehash, address owner);
 
     // Creating a new entry for a new registered domain
@@ -35,7 +36,7 @@ contract Registry {
         });
         recordsKeys.push(_namehash);
 
-        emit NewDomain(_namehash, msg.sender, records[_namehash].domain, records[_namehash].taken);
+        emit NewDomain(_namehash, msg.sender, records[_namehash].domain, records[_namehash].taken, test);
     }
 
     function queryDomainOwner(string memory _domain) public view returns (address)
@@ -83,6 +84,13 @@ contract Registry {
             );
         }
     }
+
+    function getRegAddress()
+      public
+      view
+      returns (address _contract) {
+        return address(this);
+      }
 
     modifier only_owner(bytes32 namehash) {
         require(

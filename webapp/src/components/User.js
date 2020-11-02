@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { placeBid, withdraw } from '../auction';
+import { placeBid, withdraw } from '../auctionFactory';
 
 const User = (props) => {
   const [value, setValue] = useState(0);

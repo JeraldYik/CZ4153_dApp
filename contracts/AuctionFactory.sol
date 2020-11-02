@@ -11,6 +11,8 @@ contract AuctionFactory {
     // Mapping domainNamehash to struct AuctionParam
     mapping(bytes32 => AuctionParam) public auctions;
     bytes32[] public auctionKeys;
+    BlindAuction[] public allAuctAddr;
+    bytes32[] public allAuctDomains;
     address public owner;
 
     // Instantiating new Registry
@@ -66,6 +68,9 @@ contract AuctionFactory {
            ended: false
         });
         auctionKeys.push(_namehash);
+        allAuctAddr.push(newAuction);
+        bytes32 domainInBytes = stringToBytes32(_domain);
+        allAuctDomains.push(domainInBytes);
 
         emit AuctionCreated(newAuction, msg.sender, auctionKeys.length);
         return newAuction;
@@ -131,17 +136,18 @@ contract AuctionFactory {
         view
         returns (BlindAuction[] memory)
     {
-        BlindAuction[] memory contractaddress;
-        uint auctionCount = auctionKeys.length;
-
-        for (uint i = 0; i < auctionCount; i++) {
-            bytes32 curr_namehash = auctionKeys[i];
-            AuctionParam storage curr_auctionParam = auctions[curr_namehash];
-            if (curr_auctionParam.taken == true && curr_auctionParam.ended == false) {
-              contractaddress[i] = curr_auctionParam.auctionContract;
-            }
-        }
-        return (contractaddress);
+        // BlindAuction[] memory contractaddress;
+        // uint auctionCount = auctionKeys.length;
+        // //
+        // for (uint i = 0; i < auctionCount; i++) {
+        //     bytes32 curr_namehash = auctionKeys[i];
+        //     AuctionParam storage curr_auctionParam = auctions[curr_namehash];
+        //     if (curr_auctionParam.taken == true && curr_auctionParam.ended == false) {
+        //       BlindAuction currAuctContract = curr_auctionParam.auctionContract;
+        //       contractaddress[i] = currAuctContract;
+        //     }
+        // }
+        return (allAuctAddr);
     }
 
     // Returns all ongoing auctions' domain names
@@ -150,19 +156,19 @@ contract AuctionFactory {
         view
         returns (bytes32[] memory)
     {
-        bytes32[] memory domainName;
-        uint auctionCount = auctionKeys.length;
-
-        for (uint i = 0; i < auctionCount; i++) {
-            bytes32 curr_namehash = auctionKeys[i];
-            AuctionParam storage curr_auctionParam = auctions[curr_namehash];
-            if (curr_auctionParam.taken == true && curr_auctionParam.ended == false) {
-              string memory strDomainName = curr_auctionParam.domain;
-              bytes32 byteDomainName = stringToBytes32(strDomainName);
-              domainName[i] = byteDomainName;
-            }
-        }
-        return (domainName);
+        // bytes32[] memory domainName;
+        // uint auctionCount = auctionKeys.length;
+        //
+        // for (uint i = 0; i < auctionCount; i++) {
+        //     bytes32 curr_namehash = auctionKeys[i];
+        //     AuctionParam storage curr_auctionParam = auctions[curr_namehash];
+        //     if (curr_auctionParam.taken == true && curr_auctionParam.ended == false) {
+        //       string memory strDomainName = curr_auctionParam.domain;
+        //       bytes32 byteDomainName = stringToBytes32(strDomainName);
+        //       domainName[i] = byteDomainName;
+        //     }
+        // }
+        return (allAuctDomains);
     }
 
 

@@ -176,4 +176,22 @@ contract("AuctionFactory and BlindAuction", async (accounts) => {
     assert.equal(addr,contract);
   });
 
+  it("should be able to list ongoing auctions addresses and domains", async () => {
+    // const auctCount = await auctionfactory.getAuctionsCount.call();
+    const auctAddr = await auctionfactory.allAuctionsAddr.call();
+    const auctDomains = await auctionfactory.allAuctionsDomain.call();
+    // const auctNames = [];
+    // for (i = 0; i < auctDomains.length; i++) {
+    //   currentByteName = auctDomains[i];
+    //   currentName = web3.toAscii(currentByteName.toString());
+    //   auctNames.append(currentName);
+    // };
+    // console.log(auctCount);
+    console.log(auctAddr);
+    console.log(auctDomains);
+    // console.log(auctNames);
+    // assert.equal(auctCount,auctAddr.length());
+    assert.equal(auctAddr.length,auctDomains.length);
+  });
+
 });

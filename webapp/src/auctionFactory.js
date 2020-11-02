@@ -15,7 +15,7 @@ const infuraWSS = 'wss://ropsten.infura.io/ws/v3/3537874f2c17447e8f2dc9ceb1beae0
 // console.log('process.env.INFURA_WSS', process.env.INFURA_WSS)
 
 // export const ContractAddress = "0x07A6EdB8ec67Ae0e8DC7A4EB07EE42cFC821483E"; // PLEASE CHANGE IT TO YOURS
-export const ContractAddress = "0xcfdc4ec61e7f8527e2d5dcc7e5901db0bd299325";
+export const ContractAddress = "0x5427670459547FA5b86BE420Cf6af7ff379D603a";
 export const Testnet = "ropsten"; // PLEASE CHANGE IT TO YOURS
 
 // const web3 = new Web3(
@@ -30,11 +30,13 @@ const contract = new web3.eth.Contract(artifact.abi, ContractAddress);
 
 // AuctionFactory
 export const createAuction = async (_bidIncrement, _biddingTime, _revealTime, _domain) => {
-  return await contract.methods.createAuction(_bidIncrement, _biddingTime, _revealTime, _domain).send({
-    from: '0xFd55d965Fb9f2E53Fc0071B6fd8aCffe13Bda55E'
-  }, (err) => {
-    console.log({err})
+  const ownerAddr = '0xfcC2ED51BDF5dA27C65D181AF60cff79D5AD58Cd'
+  const newAuction = await contract.methods.createAuction(_bidIncrement, _biddingTime, _revealTime, _domain).send({
+    from: ownerAddr,
+    gas: 4712388,
+    gasPrice: 100000000000
   });
+  return {newAuction, ownerAddr};
 }
 
 export const cancelAuction = async (_domain) => {

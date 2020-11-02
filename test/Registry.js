@@ -92,14 +92,22 @@ contract("Registry and Resolver", async (accounts) => {
     assert.equal(newHolder, initHolder);
   });
 
-  it("test getRegAddress()", async () => {
-
+  it("can set payable address", async() => {
+      await registry.setAddr("CZ4153", accounts[5], {
+        from: accounts[2],
+        gas: "400000"
+      });
+      const payableAddr = await registry.queryDomainPayableAddr.call("CZ4153");
+      assert.equal(payableAddr, accounts[5]);
   });
 
-  // payDomainPayableAddr
-
-  // queryDomainFromOwner
-
-  // queryDomainFromPayableAddr
+  it("cannot set payable if you're not the owner", async() => {
+    await truffleAssert.reverts(
+      registry.setAddr("CZ4153", accounts[5], {
+        from: accounts[0],
+        gas: "400000" }),
+        "revert Only owner is authorised to perform this action!"
+      )
+  });
 
 });

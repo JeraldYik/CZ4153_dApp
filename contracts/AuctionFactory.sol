@@ -2,7 +2,6 @@ pragma solidity >=0.4.22 <0.8.0;
 
 import {BlindAuction} from "./BlindAuction.sol";
 import {Registry} from "./Registry.sol";
-// import {Resolver} from "./Resolver.sol";
 
 contract AuctionFactory {
     constructor() public {

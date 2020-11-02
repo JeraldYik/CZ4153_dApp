@@ -100,25 +100,34 @@ contract Registry {
         require(_taken == true, "This domain is available.");
     }
 
-    function queryDomainPayableAddr(string memory _domain) public view returns (address)
+    function queryDomainPayableAddr(string memory _domain)
+        public
+        view
+        returns (address)
     {
         bool _taken;
         bytes32 _namehash = getDomainNamehash(_domain);
         if (records[_namehash].taken == true) {
-              _taken = records[_namehash].taken;
-              address payable _currentPayableAddr = records[_namehash].currentPayableAddr;
-              return _currentPayableAddr;
-      }
-      require(_taken == true, "This domain is available.");
+            _taken = records[_namehash].taken;
+            address payable _currentPayableAddr = records[_namehash]
+                .currentPayableAddr;
+            return _currentPayableAddr;
+        }
+        require(_taken == true, "This domain is available.");
     }
 
-    function queryDomainFromOwner(address _owner) public view returns (string memory domainName) {
-      string memory _domainName = "";
-      bytes32 _currentNamehash;
-      for (uint i = 0; i < recordsKeys.length; i++) {
-        _currentNamehash = recordsKeys[i];
-        if (records[_currentNamehash].owner == _owner) {
-            _domainName = records[_currentNamehash].domain;
+    function queryDomainFromOwner(address _owner)
+        public
+        view
+        returns (string memory domainName)
+    {
+        string memory _domainName = "";
+        bytes32 _currentNamehash;
+        for (uint256 i = 0; i < recordsKeys.length; i++) {
+            _currentNamehash = recordsKeys[i];
+            if (records[_currentNamehash].owner == _owner) {
+                _domainName = records[_currentNamehash].domain;
+            }
         }
         require(
             keccak256(abi.encodePacked((_domainName))) !=

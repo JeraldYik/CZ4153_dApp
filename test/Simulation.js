@@ -77,8 +77,9 @@ contract("Simulation", async (accounts) => {
       value: 100000,
       gas: "400000"
     });
-    console.log("CZ4153: 100K from Bidder 2");
     console.log("Time: 30s");
+    console.log("");
+    console.log("CZ4153: 100K from Bidder 2");
     console.log("Bidder 1 deposit for CZ: 100K");
     console.log("Bidder 2 deposit for CZ: 100K");
     console.log("Bidder 3 deposit for CZ: 100K");
@@ -103,15 +104,17 @@ contract("Simulation", async (accounts) => {
       value: 100000,
       gas: "400000"
     });
+    console.log("");
     console.log("CE4153: 100K from Bidder 3");
-    console.log("Time: 30s");
     console.log("Bidder 1 deposit for CE: 100K");
     console.log("Bidder 2 deposit for CE: 100K");
     console.log("Bidder 3 deposit for CE: 100K");
 
     // Increase time to 60s (20s left for CE to bid and 90s left for CZ to bid)
     await time.increase(30);
-    console.log("Time: 60s, 90s left for CZ to bid and 20s left for CE to bid")
+    console.log("");
+    console.log("Time: 60s, 90s left for CZ to bid and 20s left for CE to bid");
+    console.log("");
 
     // Fresh bids for CZ, bidder 1 fakes a bid, bidder 3 outbids and bidder 2 abstains
     const bidderOne_CZBidTwo = await czInstance.bidHash.call(50000, true, bid1Salt);
@@ -127,10 +130,64 @@ contract("Simulation", async (accounts) => {
       gas: "400000"
     });
     console.log("CZ4153: 250K (rounds to 200K) from Bidder 2");
-    console.log("Time: 30s");
-    console.log("Bidder 1 deposit for CZ: 100K");
+    console.log("Bidder 1 deposit for CZ: 150K");
     console.log("Bidder 2 deposit for CZ: 100K");
-    console.log("Bidder 3 deposit for CZ: 100K");
+    console.log("Bidder 3 deposit for CZ: 250K");
+
+    // Fresh bids for CE, bidder 1 raises to 150K, bidder 2 tries for 180K (invalid), bidder 3 bids 220K (rounds down to 200K)
+    const bidderOne_CEBidTwo = await ceInstance.bidHash.call(150000, false, bid1Salt);
+    const bidderTwo_CEBidTwo = await ceInstance.bidHash.call(180000, false, bid2Salt);
+    const bidderThree_CEBidTwo = await ceInstance.bidHash.call(220000, false, bid3Salt);
+    await ceInstance.commitBid(bidderOne_CEBidTwo, {
+      from: bidder1,
+      value: 150000,
+      gas: "400000"
+    });
+    await ceInstance.commitBid(bidderTwo_CEBidTwo, {
+      from: bidder2,
+      value: 180000,
+      gas: "400000"
+    });
+    await ceInstance.commitBid(bidderThree_CEBidTwo, {
+      from: bidder3,
+      value: 250000,
+      gas: "400000"
+    });
+    console.log("");
+    console.log("CE4153: 220K (200K) from Bidder 3");
+    console.log("Bidder 1 deposit for CE: 250K");
+    console.log("Bidder 2 deposit for CE: 280K");
+    console.log("Bidder 3 deposit for CE: 350K");
+
+    // Increase time to 90s (40s left for CE to reveal and 60s left for CZ to bid)
+    await time.increase(30);
+    console.log("");
+    console.log("Time: 90s, 60s left for CZ to bid and 40s left for CE to reveal");
+    console.log("");
+
+    // Reveal bids for CE domainName
+    const bidder1ValArray = [50000,150000];
+    const bidder1FakeArray = [false, false];
+    const bidder1SaltArray = [bid1Salt, bid1Salt];
+    const bidder2ValArray = [60000,180000];
+    const bidder2FakeArray = [false, false];
+    const bidder2SaltArray = [bid2Salt, bid2Salt];
+    const bidder3ValArray = [100000,220000];
+    const bidder3FakeArray = [false, false];
+    const bidder3SaltArray = [bid3Salt, bid3Salt];
+    await ceInstance.revealBid(bidder1ValArray, bidder1FakeArray, bidder1SaltArray, {
+      from: bidder1,
+      gas: "400000"
+    });
+    await ceInstance.revealBid(bidder2ValArray, bidder2FakeArray, bidder2SaltArray, {
+      from: bidder2,
+      gas: "400000"
+    });
+    await ceInstance.revealBid(bidder3ValArray, bidder3FakeArray, bidder3SaltArray, {
+      from: bidder3,
+      gas: "400000"
+    });
+    console.log("All 3 bidders successfully revealed bids for CE4153");
 
   });
 

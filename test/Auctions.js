@@ -134,9 +134,9 @@ contract("AuctionFactory and BlindAuction", async (accounts) => {
   });
 
   it("owner should be able to cancel ongoing bids", async () => {
-    contract = await auctionfactory.createAuction.call(50000,90,90,"4153");
-    await auctionfactory.createAuction(50000,90,90,"4153");
-    const addr = await auctionfactory.findAuction.call("4153");
+    contract = await auctionfactory.createAuction.call(50000,90,90,"TestCancelDomain");
+    await auctionfactory.createAuction(50000,90,90,"TestCancelDomain");
+    const addr = await auctionfactory.findAuction.call("TestCancelDomain");
     const contractinstance = new BlindAuction(contract);
 
     // This can occur anytime before revealEnd
@@ -164,7 +164,16 @@ contract("AuctionFactory and BlindAuction", async (accounts) => {
       from: accounts[1],
       gas: "400000"
     });
-    console.log(txn);
+  });
+
+  it("should be able to start an auction for a cancelled domain", async () => {
+    await time.increase(91);
+    await auctionfactory.endAuction("TestCancelDomain");
+    contract = await auctionfactory.createAuction.call(50000,90,90,"TestCancelDomain");
+    await auctionfactory.createAuction(50000,90,90,"TestCancelDomain");
+    const addr = await auctionfactory.findAuction.call("TestCancelDomain");
+    const contractinstance = new BlindAuction(contract);
+    assert.equal(addr,contract);
   });
 
 });

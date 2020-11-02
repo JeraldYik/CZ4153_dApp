@@ -78,15 +78,21 @@ contract AuctionFactory {
         bytes32 _namehash = registry.getDomainNamehash(domain);
         require(auctions[_namehash].ended == false, "Auction has already ended!");
         require(auctions[_namehash].taken == true, "No such ongoing auctions!");
-        auctions[_namehash].ended = true;
 
         BlindAuction auctionContract = auctions[_namehash].auctionContract;
         address addr = address(auctionContract);
         address payable instanceAddr = address(uint160(addr));
         BlindAuction instance = BlindAuction(instanceAddr);
-        //
-        address topBidder = instance.auctionEnd();
-        registry.registerNewDomain(domain, topBidder);
+        bool _checkCancel = instance.checkCancel();
+
+        if (_checkCancel == false) {
+          auctions[_namehash].ended = true;
+          address topBidder = instance.auctionEnd();
+          registry.registerNewDomain(domain, topBidder);
+        } else {
+          auctions[_namehash].ended = false;
+          auctions[_namehash].taken = false;
+        }
     }
 
 

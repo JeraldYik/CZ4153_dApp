@@ -42,7 +42,7 @@ contract BlindAuction {
     owner = _auctfactowner;
     bidIncrement = _bidIncrement;
     namehash = _namehash;
-  }
+}
 
 
   // Functions which changes state variables
@@ -93,7 +93,7 @@ contract BlindAuction {
           refund -= bidvalue;
       }
       // Make it impossible for the sender to re-claim the same deposit.
-      bid.blindBid = bytes32(0x00000000000000000000000000000000);
+      bid.blindBid = bytes32(0);
     }
     pendingReturns[msg.sender] += refund;
   }
@@ -105,7 +105,7 @@ contract BlindAuction {
         return false;
     }
     // Refund the previously highest bidder
-    if (topBidder != address(0x0)) {
+    if (topBidder != address(0)) {
       pendingReturns[topBidder] += topBid;
     }
     // changes the highest bid and the corresponding bidder
@@ -144,6 +144,12 @@ contract BlindAuction {
     canceled = true;
     emit LogCanceled();
     return true;
+  }
+
+  function checkCancel() public view onlyAfter(revealEnd) returns (bool success) {
+    if (canceled == true) {
+      return true;
+    } else { return false; }
   }
 
 

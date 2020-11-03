@@ -14,7 +14,7 @@ import artifactAF from "./contracts/AuctionFactory.json";
 // console.log('process.env.INFURA_WSS', process.env.INFURA_WSS)
 
 // export const ContractAddress = "0x07A6EdB8ec67Ae0e8DC7A4EB07EE42cFC821483E"; // PLEASE CHANGE IT TO YOURS
-export const ContractAddress = "0x44E5B86FABf0062685d9733cC2105A09Ec2d0dF8";
+export const ContractAddress = "0xd9BF8819Ed10Ddf3037E28979bCe352D72A640F8";
 export const Testnet = "ropsten"; // PLEASE CHANGE IT TO YOURS
 
 // const web3 = new Web3(
@@ -27,10 +27,19 @@ web3.setProvider(new Web3.providers.HttpProvider("http://localhost:8545"));
 // doc here: https://web3js.readthedocs.io/en/v1.2.11/web3.html#providers
 const contract = new web3.eth.Contract(artifactAF.abi, ContractAddress);
 
-const userAddresses = {
-  0: '0xa78CF69D0Dc5bcCcc2f142FAA0b2e0aC49faaae4',
-  1: '0xd767489d0b6f7f3B92Cc79F52b96Dc2d82dFA8BC',
-  2: '0x5e935172e5142d938f0EaF607f6F8F4ee78cFEBf'
+let userAddresses = {
+  0: '',
+  1: '',
+  2: ''
+}
+
+export const populateUserAddresses = async () => {
+  const addresses = await web3.eth.getAccounts();
+  userAddresses = {
+    0: addresses[0],
+    1: addresses[1],
+    2: addresses[2]
+  }
 }
 
 let domain;
@@ -49,7 +58,7 @@ export const createAuction = async (_bidIncrement, _biddingTime, _revealTime, _d
 
 // Error: Returned error: VM Exception while processing transaction: revert Only owner can call this function.
 export const cancelAuction = async (_domain, ownerAddr) => {
-  const cancelled = await contract.methods.cancelAuction(_domain).call({
+  const cancelled = await contract.methods.cancelAuction(_domain).send({
     from: ownerAddr,
     gas: 4712388,
     gasPrice: 100000000000
@@ -60,7 +69,7 @@ export const cancelAuction = async (_domain, ownerAddr) => {
 }
 
 export const endAuction = async (_domain, ownerAddr) => {
-  const topBidder = await contract.methods.endAuction(_domain).call({
+  const topBidder = await contract.methods.endAuction(_domain).send({
     from: ownerAddr,
     gas: 4712388,
     gasPrice: 100000000000
@@ -88,13 +97,14 @@ export const commitBid = async (user, value, fake, salt) => {
 }
 
 export const revealBid = async (user, values, fakes, salts) => {
+  console.log(await web3.eth.getAccounts())
   const addr = userAddresses[user];
   const _salts = []
   salts.forEach(s => {
     _salts.push(web3.utils.fromAscii(s));
   });
   //function revealBid(string memory domain, uint256[] memory _bidvalue, bool[] memory _fake, bytes32[] memory _salt) 
-  await contract.methods.revealBid(domain, values, fakes, _salts).call({
+  await contract.methods.revealBid(domain, values, fakes, _salts).send({
     from: addr,
     gas: 4712388,
     gasPrice: 100000000000
@@ -106,7 +116,7 @@ export const revealBid = async (user, values, fakes, salts) => {
 export const withdraw = async (user) => {
   const addr = userAddresses[user];
   // function withdraw(string memory domain)
-  await contract.methods.withdraw(domain).call({
+  await contract.methods.withdraw(domain).send({
     from: addr,
     gas: 4712388,
     gasPrice: 100000000000

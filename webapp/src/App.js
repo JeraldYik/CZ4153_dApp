@@ -3,6 +3,7 @@ import User from './components/User';
 import {
   ContractAddress,
   Testnet,
+  populateUserAddresses,
   createAuction,
   cancelAuction,
   getUserAddress,
@@ -10,6 +11,7 @@ import {
 } from "./auctionFactory.js"
 
 const App = () => {
+  const [isUserAddressSet, setIsUserAddressSet] = useState(false);
   const [domainName, setDomainName] = useState('');
   const [ownerAddr, setOwnerAddr] = useState('');
   const [created, setCreated] = useState(false);
@@ -20,17 +22,25 @@ const App = () => {
 
   const NUM_USERS = 2;
   const BID_INCREMENT = 10;
-  const BIDDING_TIME = 1;
+  const BIDDING_TIME = 100;
   const REVEAL_TIME = 1;
 
-  useEffect(() => {
+  useEffect(async () => {
+    const _populateUserAddresses = async () => {
+      await populateUserAddresses();
+      setIsUserAddressSet(true);
+    };
+    _populateUserAddresses();
     const _users = [];
     for (var i=1; i<=NUM_USERS; i++) {
       _users.push(<User index={i} />);
     }
     setUsers(_users);
-    setOwnerAddr(getUserAddress(0));
   }, []);
+
+  useEffect(() => {
+    setOwnerAddr(getUserAddress(0));
+  }, [isUserAddressSet])
 
   const handleDomainNameChange = (e) => {
     setDomainName(e.target.value);

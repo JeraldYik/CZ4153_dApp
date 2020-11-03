@@ -125,7 +125,7 @@ contract AuctionFactory {
     function getAuctionsCount()
         public
         view
-        returns(uint auctionCount)
+        returns(uint256 auctionCount)
     {
         return auctionKeys.length;
     }
@@ -136,17 +136,6 @@ contract AuctionFactory {
         view
         returns (BlindAuction[] memory)
     {
-        // BlindAuction[] memory contractaddress;
-        // uint auctionCount = auctionKeys.length;
-        // //
-        // for (uint i = 0; i < auctionCount; i++) {
-        //     bytes32 curr_namehash = auctionKeys[i];
-        //     AuctionParam storage curr_auctionParam = auctions[curr_namehash];
-        //     if (curr_auctionParam.taken == true && curr_auctionParam.ended == false) {
-        //       BlindAuction currAuctContract = curr_auctionParam.auctionContract;
-        //       contractaddress[i] = currAuctContract;
-        //     }
-        // }
         return (allAuctAddr);
     }
 
@@ -156,18 +145,6 @@ contract AuctionFactory {
         view
         returns (bytes32[] memory)
     {
-        // bytes32[] memory domainName;
-        // uint auctionCount = auctionKeys.length;
-        //
-        // for (uint i = 0; i < auctionCount; i++) {
-        //     bytes32 curr_namehash = auctionKeys[i];
-        //     AuctionParam storage curr_auctionParam = auctions[curr_namehash];
-        //     if (curr_auctionParam.taken == true && curr_auctionParam.ended == false) {
-        //       string memory strDomainName = curr_auctionParam.domain;
-        //       bytes32 byteDomainName = stringToBytes32(strDomainName);
-        //       domainName[i] = byteDomainName;
-        //     }
-        // }
         return (allAuctDomains);
     }
 

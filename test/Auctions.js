@@ -2,6 +2,7 @@ const truffleAssert = require('truffle-assertions');
 const { time } = require('openzeppelin-test-helpers');
 const should = require('chai').should();
 const Web3 = require('web3');
+const { utils } = require('web3');
 
 const AuctionFactory = artifacts.require("AuctionFactory");
 const BlindAuction = artifacts.require("BlindAuction");
@@ -151,7 +152,7 @@ contract("AuctionFactory and BlindAuction", async (accounts) => {
     const bidHash = await contractinstance.bidHash.call(bidvalue, fake, saltinbytes);
     await contractinstance.commitBid(bidHash, {
       from: accounts[1],
-      value: 100000,
+      value: 150000,
       gas: "400000"
     });
     await time.increase(91);
@@ -160,10 +161,17 @@ contract("AuctionFactory and BlindAuction", async (accounts) => {
       from: accounts[1],
       gas: "400000"
     });
+    const withdrawAmt = await contractinstance.withdraw.call({
+      from: accounts[1],
+      gas: "400000"
+    });
     const txn = await contractinstance.withdraw({
       from: accounts[1],
       gas: "400000"
     });
+    // Deposit of 150K but only 1 bid increment of 50K, hence 150K - 50K
+    const withdrawAmtInt = withdrawAmt.toNumber();
+    assert.equal(withdrawAmtInt, 150000-50000);
   });
 
   it("should be able to start an auction for a cancelled domain", async () => {
@@ -177,20 +185,18 @@ contract("AuctionFactory and BlindAuction", async (accounts) => {
   });
 
   it("should be able to list ongoing auctions addresses and domains", async () => {
-    // const auctCount = await auctionfactory.getAuctionsCount.call();
+    const auctCount = await auctionfactory.getAuctionsCount.call();
+    const auctCountInt = auctCount.toNumber();
     const auctAddr = await auctionfactory.allAuctionsAddr.call();
     const auctDomains = await auctionfactory.allAuctionsDomain.call();
-    // const auctNames = [];
-    // for (i = 0; i < auctDomains.length; i++) {
-    //   currentByteName = auctDomains[i];
-    //   currentName = web3.toAscii(currentByteName.toString());
-    //   auctNames.append(currentName);
-    // };
-    // console.log(auctCount);
-    console.log(auctAddr);
-    console.log(auctDomains);
-    // console.log(auctNames);
-    // assert.equal(auctCount,auctAddr.length());
+    const auctNames = [];
+    for (i = 0; i < auctDomains.length; i++) {
+      let currentByteName = auctDomains[i];
+      let currentName = web3.utils.toAscii(currentByteName).replace(/\0/g, '');
+      auctNames[i] = currentName;
+    };
+    assert.equal(auctCount,auctAddr.length);
+    assert.equal(auctCount,auctDomains.length);
     assert.equal(auctAddr.length,auctDomains.length);
   });
 

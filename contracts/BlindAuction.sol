@@ -120,7 +120,7 @@ contract BlindAuction {
   }
 
   /// Withdraw the unused deposits
-  function withdraw() onlyEndedOrCanceled public {
+  function withdraw() onlyEndedOrCanceled public returns(uint256) {
     uint amount = pendingReturns[msg.sender];
     if (amount > 0) {
       emit LogWithdrawal(msg.sender, amount);
@@ -128,6 +128,7 @@ contract BlindAuction {
       pendingReturns[msg.sender] = 0;
       msg.sender.transfer(amount);
     }
+    return amount;
   }
 
   /// End the auction and send the highest bid to the owner of the contract

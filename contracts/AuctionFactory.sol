@@ -5,7 +5,7 @@ import {Registry} from "./Registry.sol";
 
 contract AuctionFactory {
     constructor() public {
-      owner = msg.sender;
+        owner = msg.sender;
     }
 
     // Mapping domainNamehash to struct AuctionParam
@@ -20,10 +20,10 @@ contract AuctionFactory {
 
     // Declaring Structs used in this contract
     struct AuctionParam {
-      BlindAuction auctionContract;
-      string domain;
-      bool taken;
-      bool ended;
+        BlindAuction auctionContract;
+        string domain;
+        bool taken;
+        bool ended;
     }
 
     // Declaring events that will be emitted
@@ -35,20 +35,15 @@ contract AuctionFactory {
 
     event AuctionEnded(address topBidder, uint256 topBid);
 
-
     // Functions which changes state variables
 
     // Creating new auctions
-    function createAuction (
+    function createAuction(
         uint256 bidIncrement,
         uint256 biddingTime,
         uint256 revealTime,
         string memory _domain
-    )
-        public
-        payable
-        returns (BlindAuction)
-    {
+    ) public payable returns (BlindAuction) {
         bytes32 _namehash = registry.getDomainNamehash(_domain);
         BlindAuction newAuction = new BlindAuction(
             bidIncrement,
@@ -57,15 +52,21 @@ contract AuctionFactory {
             _namehash,
             address(uint160(address(owner)))
         );
-        require(auctions[_namehash].ended == false, "The current domain is already registered");
-        require(auctions[_namehash].taken == false, "The current domain is currently being bidded for");
+        require(
+            auctions[_namehash].ended == false,
+            "The current domain is already registered"
+        );
+        require(
+            auctions[_namehash].taken == false,
+            "The current domain is currently being bidded for"
+        );
 
         // mapping new auction parameters for the domainNamehash
         auctions[_namehash] = AuctionParam({
-           auctionContract: newAuction,
-           domain: _domain,
-           taken: true,
-           ended: false
+            auctionContract: newAuction,
+            domain: _domain,
+            taken: true,
+            ended: false
         });
         auctionKeys.push(_namehash);
         allAuctAddr.push(newAuction);
@@ -77,11 +78,12 @@ contract AuctionFactory {
     }
 
     // End ongoing auctions for a given domain name
-    function endAuction(string memory domain)
-        public
-    {
+    function endAuction(string memory domain) public returns (address) {
         bytes32 _namehash = registry.getDomainNamehash(domain);
-        require(auctions[_namehash].ended == false, "Auction has already ended!");
+        require(
+            auctions[_namehash].ended == false,
+            "Auction has already ended!"
+        );
         require(auctions[_namehash].taken == true, "No such ongoing auctions!");
 
         BlindAuction auctionContract = auctions[_namehash].auctionContract;
@@ -89,24 +91,81 @@ contract AuctionFactory {
         address payable instanceAddr = address(uint160(addr));
         BlindAuction instance = BlindAuction(instanceAddr);
         bool _checkCancel = instance.checkCancel();
+        address topBidder = address(0x0);
 
         if (_checkCancel == false) {
-          auctions[_namehash].ended = true;
-          address topBidder = instance.auctionEnd();
-          registry.registerNewDomain(domain, topBidder);
+            auctions[_namehash].ended = true;
+            topBidder = instance.auctionEnd();
+            registry.registerNewDomain(domain, topBidder);
         } else {
-          auctions[_namehash].ended = false;
-          auctions[_namehash].taken = false;
+            auctions[_namehash].ended = false;
+            auctions[_namehash].taken = false;
         }
+
+        return topBidder;
     }
 
+    // Expose relevant BlindAuction methods
+    function commitBid(string memory domain, bytes32 _blindBid) public {
+        bytes32 _namehash = registry.getDomainNamehash(domain);
+        require(
+            auctions[_namehash].ended == false,
+            "Auction has already ended!"
+        );
+        BlindAuction auction = auctions[_namehash].auctionContract;
+        auction.commitBid(_blindBid);
+    }
+
+    function revealBid(
+        string memory domain,
+        uint256[] memory _bidvalue,
+        bool[] memory _fake,
+        bytes32[] memory _salt
+    ) public {
+        bytes32 _namehash = registry.getDomainNamehash(domain);
+        require(
+            auctions[_namehash].ended == false,
+            "Auction has already ended!"
+        );
+        BlindAuction auction = auctions[_namehash].auctionContract;
+        auction.revealBid(_bidvalue, _fake, _salt);
+    }
+
+    function withdraw(string memory domain) public {
+        bytes32 _namehash = registry.getDomainNamehash(domain);
+        require(
+            auctions[_namehash].ended == false,
+            "Auction has already ended!"
+        );
+        BlindAuction auction = auctions[_namehash].auctionContract;
+        auction.withdraw();
+    }
+
+    function cancelAuction(string memory domain) public returns (bool success) {
+        bytes32 _namehash = registry.getDomainNamehash(domain);
+        require(
+            auctions[_namehash].ended == false,
+            "Auction has already ended!"
+        );
+        BlindAuction auction = auctions[_namehash].auctionContract;
+        return auction.cancelAuction();
+    }
+
+    function bidHash(
+        uint256 _bidvalue,
+        bool _fake,
+        bytes32 _salt
+    ) public pure returns (bytes32 blindBid) {
+        blindBid = keccak256(abi.encodePacked(_bidvalue, _fake, _salt));
+        return blindBid;
+    }
 
     // Functions that do not change state variables (Callable functiosn)
 
     // Call registry address
     function registryAddr() public view returns (address) {
-      address regAddr = registry.getRegAddress();
-      return regAddr;
+        address regAddr = registry.getRegAddress();
+        return regAddr;
     }
 
     // Find and return only ongoing auctions from domain name
@@ -116,8 +175,14 @@ contract AuctionFactory {
         returns (BlindAuction)
     {
         bytes32 _namehash = registry.getDomainNamehash(domain);
-        require(auctions[_namehash].ended == false, "Domain has already been registered");
-        require(auctions[_namehash].taken == true, "Domain is available for auction");
+        require(
+            auctions[_namehash].ended == false,
+            "Domain has already been registered"
+        );
+        require(
+            auctions[_namehash].taken == true,
+            "Domain is available for auction"
+        );
         return auctions[_namehash].auctionContract;
     }
 
@@ -148,11 +213,14 @@ contract AuctionFactory {
         return (allAuctDomains);
     }
 
-
     // Pure functions and modifiers
 
     // Converts a string to a bytes32 variable
-    function stringToBytes32(string memory _source) pure public returns (bytes32 result) {
+    function stringToBytes32(string memory _source)
+        public
+        pure
+        returns (bytes32 result)
+    {
         bytes memory tempEmptyStringTest = bytes(_source);
         if (tempEmptyStringTest.length == 0) {
             return 0x0;
@@ -162,5 +230,4 @@ contract AuctionFactory {
             result := mload(add(_source, 32))
         }
     }
-
 }

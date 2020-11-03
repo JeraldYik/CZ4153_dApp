@@ -128,6 +128,16 @@ contract AuctionFactory {
         auction.revealBid(_bidvalue, _fake, _salt);
     }
 
+    function withdraw(string memory domain) public {
+        bytes32 _namehash = registry.getDomainNamehash(domain);
+        require(
+            auctions[_namehash].ended == false,
+            "Auction has already ended!"
+        );
+        BlindAuction auction = auctions[_namehash].auctionContract;
+        auction.withdraw();
+    }
+
     function bidHash(
         uint256 _bidvalue,
         bool _fake,

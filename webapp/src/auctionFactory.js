@@ -14,7 +14,7 @@ import artifactAF from "./contracts/AuctionFactory.json";
 // console.log('process.env.INFURA_WSS', process.env.INFURA_WSS)
 
 // export const ContractAddress = "0x07A6EdB8ec67Ae0e8DC7A4EB07EE42cFC821483E"; // PLEASE CHANGE IT TO YOURS
-export const ContractAddress = "0xa3E1538Fb00aE4A02FC08442968Bc3B5C85DB06e";
+export const ContractAddress = "0x55319536eaFffd8BbF48D07B00df7DC8ff28D147";
 export const Testnet = "ropsten"; // PLEASE CHANGE IT TO YOURS
 
 // const web3 = new Web3(
@@ -28,9 +28,9 @@ web3.setProvider(new Web3.providers.HttpProvider("http://localhost:8545"));
 const contract = new web3.eth.Contract(artifactAF.abi, ContractAddress);
 
 const userAddresses = {
-  0: '0xCFCed6536a070c255548C46CecA8d72fBd032B86',
-  1: '0x69B4cA50d8715Cd5Ac74e4997fB8831FB79bce1B',
-  2: '0xf674bA0fb5c845F6395B3DBBa456f88e4f3fA095'
+  0: '0xfE37c835c81c1d9a71bC1D23CB1f6C12A3effdE6',
+  1: '0xD386EbA8aF77f88d11952EDb4a11cd24683d9E21',
+  2: '0xe6AE182389a46024b136bb8F9750792b24469E0E'
 }
 
 let domain;
@@ -43,7 +43,8 @@ export const createAuction = async (_bidIncrement, _biddingTime, _revealTime, _d
     gas: 4712388,
     gasPrice: 100000000000
   });
-  return {newAuction, ownerAddr};
+  domain = _domain;
+  return newAuction;
 }
 
 export const cancelAuction = async (_domain) => {
@@ -51,18 +52,8 @@ export const cancelAuction = async (_domain) => {
   return await contract.methods.endAuction(_domain).call();
 }
 
-export const findAuction = async (_domain) => {
-  return await contract.methods.findAuction(_domain).call();
-}
-
-// Auction
-export const getHighestBid = async (_auction) => {
-  
-}
-
 // Auction
 export const commitBid = async (user, value, fake, salt) => {
-  console.log({domain, user, value, fake, salt})
   const addr = userAddresses[user];
   const _salt = web3.utils.fromAscii(salt);
   const hash = await contract.methods.bidHash(value, fake, _salt).call({
@@ -78,7 +69,27 @@ export const commitBid = async (user, value, fake, salt) => {
   alert(`User ${user} has committed a bit`);
 }
 
+export const revealBid = async (user, values, fakes, salts) => {
+  const addr = userAddresses[user];
+  const _salts = []
+  salts.forEach(s => {
+    _salts.push(web3.utils.fromAscii(s));
+  });
+  //function revealBid(string memory domain, uint256[] memory _bidvalue, bool[] memory _fake, bytes32[] memory _salt) 
+  await contract.methods.revealBid(domain, values, fakes, _salts).call({
+    from: addr,
+    gas: 4712388,
+    gasPrice: 100000000000
+  });
+  alert(`User ${user} has revealed a bit`)
+}
+
 // Auction
 export const withdraw = async () => {
 
 };
+
+// helper functions
+export const getUserAddress = (user) => {
+  return userAddresses[user];
+}

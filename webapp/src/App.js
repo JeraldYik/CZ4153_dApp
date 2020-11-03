@@ -5,21 +5,20 @@ import {
   Testnet,
   createAuction,
   cancelAuction,
-  findAuction,
-  getHighestBid
+  getUserAddress
 } from "./auctionFactory.js"
 
 const App = () => {
   const [domainName, setDomainName] = useState('');
   const [ownerAddr, setOwnerAddr] = useState('');
+  const [created, setCreated] = useState(false);
   const [canceled, setCanceled] = useState(false);
-  const [highestBid, setHighestBid] = useState(0);
   const [users, setUsers] = useState([]);
   const [auctions, setAuctions] = useState([]);
 
   const NUM_USERS = 2;
   const BID_INCREMENT = 10;
-  const BIDDING_TIME = 1000000;
+  const BIDDING_TIME = 1;
   const REVEAL_TIME = 1;
 
   useEffect(() => {
@@ -28,6 +27,7 @@ const App = () => {
       _users.push(<User index={i} />);
     }
     setUsers(_users);
+    setOwnerAddr(getUserAddress(0));
   }, []);
 
   const handleDomainNameChange = (e) => {
@@ -35,9 +35,9 @@ const App = () => {
   }
 
   const handleCreateAuction = async () => {
-    let { newAuction, ownerAddr } = await createAuction(BID_INCREMENT, BIDDING_TIME, REVEAL_TIME, domainName);
+    const newAuction = await createAuction(BID_INCREMENT, BIDDING_TIME, REVEAL_TIME, domainName);
     setAuctions([...auctions, newAuction]);
-    setOwnerAddr(ownerAddr);
+    setCreated(true);
   }
 
   const handleCancelAuction = async () => {
@@ -45,14 +45,8 @@ const App = () => {
     if (canceled) {
       setCanceled(true);
       setDomainName('');
-      setOwnerAddr('');
+      setCreated(false);
     }
-  }
-
-  const handleGetHighestBid = async () => {
-    const auction = await findAuction(domainName);
-    const _highestBid = await getHighestBid(auction);
-    setHighestBid(_highestBid);
   }
 
   return (
@@ -62,14 +56,14 @@ const App = () => {
       <p>Network: {Testnet}</p>
       <hr />
       <div>
-        <h3>Owner:</h3>
+        <h3>Owner: ({ownerAddr})</h3>
         <input
           id="domain-name"
           type="text"
           placeholder="domain"
           value={domainName}
           onChange={handleDomainNameChange}
-          disabled={ownerAddr !== ''}
+          disabled={created}
         />
         <label for="domain-name">.ntu</label>
         <br />
@@ -77,13 +71,11 @@ const App = () => {
           type="submit"
           value="Create Auction"
           onClick={handleCreateAuction}
-          disabled={ownerAddr !== ''}
+          disabled={created}
         />
-        <p>{ownerAddr !== '' && `Auction for Domain ${domainName}.ntu created!`}</p>
-        <p>{ownerAddr !== '' && `Owner's address: ${ownerAddr}`}</p>
+        <p>{created && `Auction for Domain ${domainName}.ntu created!`}</p>
+        <p>{created && `Owner's address: ${ownerAddr}`}</p>
         <p>{canceled && 'Auction has ended'}</p>
-        <p>Highest bid: {highestBid}</p>
-        <button onClick={handleGetHighestBid}>Get Highest Bid</button>
         <button onClick={handleCancelAuction}>End Auction</button>
       </div>
       {users}

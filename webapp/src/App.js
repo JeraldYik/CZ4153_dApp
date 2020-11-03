@@ -25,7 +25,7 @@ const App = () => {
   const BIDDING_TIME = 100;
   const REVEAL_TIME = 1;
 
-  useEffect(async () => {
+  useEffect(() => {
     const _populateUserAddresses = async () => {
       await populateUserAddresses();
       setIsUserAddressSet(true);

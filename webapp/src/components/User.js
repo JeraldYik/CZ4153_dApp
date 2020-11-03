@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { commitBid, withdraw, getUserAddress, revealBid } from '../auctionFactory';
+import { commitBid, withdraw, revealBid } from '../auctionFactory';
 
 const User = (props) => {
   const [bid, setBid] = useState('0');
@@ -9,16 +9,11 @@ const User = (props) => {
   const [revealbid, setrevealBid] = useState('0');
   const [revealfake, setrevealFake] = useState(fake);
   const [revealsalt, setrevealSalt] = useState('');
-  const [addr, setAddr] = useState('');
   const [revealBids, setRevealBids] = useState({
     value: [],
     fake: [],
     salt: []
   });
-
-  useEffect(() => {
-    setAddr(getUserAddress(props.index));
-  }, [props.index]);
 
   const handleBidChange = (e) => {
     setBid(e.target.value);
@@ -86,7 +81,7 @@ const User = (props) => {
 
   return (
     <div>
-      <h3>User {props.index} ({addr})</h3>
+      <h3>User {props.index} ({props.address})</h3>
       <div>
         <p>Place Bid</p>
         <input

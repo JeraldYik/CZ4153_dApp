@@ -31,15 +31,15 @@ const App = () => {
       setIsUserAddressSet(true);
     };
     _populateUserAddresses();
-    const _users = [];
-    for (var i=1; i<=NUM_USERS; i++) {
-      _users.push(<User index={i} />);
-    }
-    setUsers(_users);
   }, []);
 
   useEffect(() => {
     setOwnerAddr(getUserAddress(0));
+    const _users = [];
+    for (var i=1; i<=NUM_USERS; i++) {
+      _users.push(<User index={i} address={getUserAddress(i)}/>);
+    }
+    setUsers(_users);
   }, [isUserAddressSet])
 
   const handleDomainNameChange = (e) => {

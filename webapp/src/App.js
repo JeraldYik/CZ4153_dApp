@@ -5,7 +5,8 @@ import {
   Testnet,
   createAuction,
   cancelAuction,
-  getUserAddress
+  getUserAddress,
+  endAuction
 } from "./auctionFactory.js"
 
 const App = () => {
@@ -15,6 +16,7 @@ const App = () => {
   const [canceled, setCanceled] = useState(false);
   const [users, setUsers] = useState([]);
   const [auctions, setAuctions] = useState([]);
+  const [winner, setWinner] = useState('');
 
   const NUM_USERS = 2;
   const BID_INCREMENT = 10;
@@ -41,12 +43,18 @@ const App = () => {
   }
 
   const handleCancelAuction = async () => {
-    const canceled = await cancelAuction(domainName);
+    const canceled = await cancelAuction(domainName, ownerAddr);
     if (canceled) {
       setCanceled(true);
       setDomainName('');
       setCreated(false);
     }
+  }
+
+  const handleEndAuction = async () => {
+    const topBidder = await endAuction(domainName);
+    setWinner(topBidder);
+    setCanceled(true);
   }
 
   return (
@@ -76,7 +84,9 @@ const App = () => {
         <p>{created && `Auction for Domain ${domainName}.ntu created!`}</p>
         <p>{created && `Owner's address: ${ownerAddr}`}</p>
         <p>{canceled && 'Auction has ended'}</p>
-        <button onClick={handleCancelAuction}>End Auction</button>
+        <button onClick={handleCancelAuction}>Cancel Auction</button>
+        <button onClick={handleEndAuction}>End Auction</button>
+        {canceled && `${winner} is the top bidder`}
       </div>
       {users}
     </>

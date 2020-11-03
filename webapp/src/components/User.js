@@ -73,6 +73,7 @@ const User = (props) => {
     }
   }
 
+  // add checks for ended or cancelled
   const handleWithdraw = async () => {
       await withdraw();    
   }

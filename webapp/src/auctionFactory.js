@@ -14,7 +14,7 @@ import artifactAF from "./contracts/AuctionFactory.json";
 // console.log('process.env.INFURA_WSS', process.env.INFURA_WSS)
 
 // export const ContractAddress = "0x07A6EdB8ec67Ae0e8DC7A4EB07EE42cFC821483E"; // PLEASE CHANGE IT TO YOURS
-export const ContractAddress = "0x55319536eaFffd8BbF48D07B00df7DC8ff28D147";
+export const ContractAddress = "0x44E5B86FABf0062685d9733cC2105A09Ec2d0dF8";
 export const Testnet = "ropsten"; // PLEASE CHANGE IT TO YOURS
 
 // const web3 = new Web3(
@@ -28,9 +28,9 @@ web3.setProvider(new Web3.providers.HttpProvider("http://localhost:8545"));
 const contract = new web3.eth.Contract(artifactAF.abi, ContractAddress);
 
 const userAddresses = {
-  0: '0xfE37c835c81c1d9a71bC1D23CB1f6C12A3effdE6',
-  1: '0xD386EbA8aF77f88d11952EDb4a11cd24683d9E21',
-  2: '0xe6AE182389a46024b136bb8F9750792b24469E0E'
+  0: '0xa78CF69D0Dc5bcCcc2f142FAA0b2e0aC49faaae4',
+  1: '0xd767489d0b6f7f3B92Cc79F52b96Dc2d82dFA8BC',
+  2: '0x5e935172e5142d938f0EaF607f6F8F4ee78cFEBf'
 }
 
 let domain;
@@ -47,9 +47,27 @@ export const createAuction = async (_bidIncrement, _biddingTime, _revealTime, _d
   return newAuction;
 }
 
-export const cancelAuction = async (_domain) => {
+// Error: Returned error: VM Exception while processing transaction: revert Only owner can call this function.
+export const cancelAuction = async (_domain, ownerAddr) => {
+  const cancelled = await contract.methods.cancelAuction(_domain).call({
+    from: ownerAddr,
+    gas: 4712388,
+    gasPrice: 100000000000
+  });
   domain = '';
-  return await contract.methods.endAuction(_domain).call();
+  alert('Auction has been cancelled');
+  return cancelled;
+}
+
+export const endAuction = async (_domain, ownerAddr) => {
+  const topBidder = await contract.methods.endAuction(_domain).call({
+    from: ownerAddr,
+    gas: 4712388,
+    gasPrice: 100000000000
+  });
+  domain = '';
+  alert('Auction has been ended');
+  return topBidder;
 }
 
 // Auction
@@ -85,8 +103,15 @@ export const revealBid = async (user, values, fakes, salts) => {
 }
 
 // Auction
-export const withdraw = async () => {
-
+export const withdraw = async (user) => {
+  const addr = userAddresses[user];
+  // function withdraw(string memory domain)
+  await contract.methods.withdraw(domain).call({
+    from: addr,
+    gas: 4712388,
+    gasPrice: 100000000000
+  });
+  alert(`User ${user} has withdrawn`)
 };
 
 // helper functions

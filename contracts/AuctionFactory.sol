@@ -78,7 +78,7 @@ contract AuctionFactory {
     }
 
     // End ongoing auctions for a given domain name
-    function endAuction(string memory domain) public {
+    function endAuction(string memory domain) public returns (address) {
         bytes32 _namehash = registry.getDomainNamehash(domain);
         require(
             auctions[_namehash].ended == false,
@@ -91,15 +91,18 @@ contract AuctionFactory {
         address payable instanceAddr = address(uint160(addr));
         BlindAuction instance = BlindAuction(instanceAddr);
         bool _checkCancel = instance.checkCancel();
+        address topBidder = address(0x0);
 
         if (_checkCancel == false) {
             auctions[_namehash].ended = true;
-            address topBidder = instance.auctionEnd();
+            topBidder = instance.auctionEnd();
             registry.registerNewDomain(domain, topBidder);
         } else {
             auctions[_namehash].ended = false;
             auctions[_namehash].taken = false;
         }
+
+        return topBidder;
     }
 
     // Expose relevant BlindAuction methods
@@ -136,6 +139,16 @@ contract AuctionFactory {
         );
         BlindAuction auction = auctions[_namehash].auctionContract;
         auction.withdraw();
+    }
+
+    function cancelAuction(string memory domain) public returns (bool success) {
+        bytes32 _namehash = registry.getDomainNamehash(domain);
+        require(
+            auctions[_namehash].ended == false,
+            "Auction has already ended!"
+        );
+        BlindAuction auction = auctions[_namehash].auctionContract;
+        return auction.cancelAuction();
     }
 
     function bidHash(

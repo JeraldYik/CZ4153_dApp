@@ -48,6 +48,7 @@ contract BlindAuction {
   // Functions which changes state variables
 
   // Commit part of blind auction
+  // function commitBid(bytes32 _blindBid) public payable {
   function commitBid(bytes32 _blindBid) public payable onlyBefore(biddingEnd){
     // Place a blinded bid with `_blindBid` = keccak256(bidvalue, fake, salt)
     bids[msg.sender].push(Bid({
@@ -59,6 +60,7 @@ contract BlindAuction {
   }
 
   // Reveal part of blind auction
+  // function revealBid(uint[] memory _bidvalue, bool[] memory _fake, bytes32[] memory _salt) public {
   function revealBid(uint[] memory _bidvalue, bool[] memory _fake, bytes32[] memory _salt) public onlyAfter(biddingEnd) onlyBefore(revealEnd) {
 
     // Tallying all responses from 1 bidder
@@ -131,6 +133,7 @@ contract BlindAuction {
   }
 
   /// End the auction and send the highest bid to the owner of the contract
+  // function auctionEnd() public payable returns (address) {
   function auctionEnd() public payable onlyAfter(revealEnd) returns (address) {
     require(!hasEnded, "Auction has not ended in the first place");
     emit AuctionEnded(topBidder, topBid);
@@ -140,6 +143,7 @@ contract BlindAuction {
   }
 
   // Cancelling the auction for whatever reasons
+  // function cancelAuction() public onlyOwner onlyNotCanceled returns (bool success) {
   function cancelAuction() public onlyOwner onlyBefore(revealEnd) onlyNotCanceled returns (bool success) {
     canceled = true;
     emit LogCanceled();

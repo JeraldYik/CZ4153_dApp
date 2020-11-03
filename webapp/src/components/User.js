@@ -2,12 +2,12 @@ import React, {useState} from 'react';
 import { commitBid, withdraw } from '../auctionFactory';
 
 const User = (props) => {
-  const [bid, setBid] = useState(0);
+  const [bid, setBid] = useState('0');
   const [fake, setFake] = useState(false);
   const [salt, setSalt] = useState('');
 
   const handleBidChange = (e) => {
-    setBid(e.target.bid);
+    setBid(e.target.value);
   }
 
   // not handled properly
@@ -16,13 +16,13 @@ const User = (props) => {
   }
 
   const handleSaltChange = (e) => {
-    setSalt(e.target.salt);
+    setSalt(e.target.value);
   }
 
   const handleSubmitNewBid = async () => {
-    if (bid === 0) {
+    if (!bid || bid === '0') {
       alert('Bid cannot be empty');
-    } else if (salt === '') {
+    } else if (!salt || salt === '') {
       alert('Salt cannot be empty');
     } else {
       await commitBid(props.index, bid, fake, salt);
@@ -34,20 +34,20 @@ const User = (props) => {
   }
 
   const clearZero = (e) => {
-    if (e.target.bid === '0') {
-      e.target.bid = '';
+    if (e.target.value === '0') {
+      e.target.value = '';
     }
   }
 
   return (
     <div>
-      <h3>User {props.index+1}</h3>
+      <h3>User {props.index}</h3>
       <div>
         <p>Place Bid</p>
         <input
           type="text"
           placeholder="Enter amount (in Ether)"
-          bid={bid}
+          value={bid}
           onChange={handleBidChange}
           onFocus={clearZero}
         />{" "}
@@ -59,7 +59,7 @@ const User = (props) => {
         <input
           type="text"
           placeholder="Salt cannot be empty"
-          salt={salt}
+          value={salt}
           onChange={handleSaltChange}
         />{" "}
         <input

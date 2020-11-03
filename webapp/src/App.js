@@ -19,7 +19,7 @@ const App = () => {
 
   const NUM_USERS = 2;
   const BID_INCREMENT = 10;
-  const BIDDING_TIME = 1;
+  const BIDDING_TIME = 1000000;
   const REVEAL_TIME = 1;
 
   useEffect(() => {

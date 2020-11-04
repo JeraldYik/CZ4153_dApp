@@ -1,0 +1,32 @@
+// <>
+//   <h1>Welcome to Auction dDNS dApp</h1>
+//   <p>Bank Contract Address: {ContractAddress}</p>
+//   <p>Network: {Testnet}</p>
+//   <hr />
+//   <div>
+//     <h3>Owner: ({ownerAddr})</h3>
+//     <input
+//       id="domain-name"
+//       type="text"
+//       placeholder="domain"
+//       value={domainName}
+//       onChange={handleDomainNameChange}
+//       disabled={created}
+//     />
+//     <label for="domain-name">.ntu</label>
+//     <br />
+//     <input
+//       type="submit"
+//       value="Create Auction"
+//       onClick={handleCreateAuction}
+//       disabled={created}
+//     />
+//     <p>{created && `Auction for Domain ${domainName}.ntu created!`}</p>
+//     <p>{created && `Owner's address: ${ownerAddr}`}</p>
+//     <p>{canceled && 'Auction has ended'}</p>
+//     <button onClick={handleCancelAuction}>Cancel Auction</button>
+//     <button onClick={handleEndAuction}>End Auction</button>
+//     {canceled && `${winner} is the top bidder`}
+//   </div>
+//   {users}
+// </>

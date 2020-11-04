@@ -5,5 +5,5 @@ module.exports = function(deployer) {
   deployer.deploy(AuctionFactory);
 
   // Comment this line out for actual deployer
-  deployer.deploy(Registry);
+  // deployer.deploy(Registry);
 };

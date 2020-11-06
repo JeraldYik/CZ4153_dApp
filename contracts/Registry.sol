@@ -84,10 +84,7 @@ contract Registry {
     // Functions that do not change state variables (Callable functiosn)
 
     // Find the domain owner from
-    function queryDomainOwner(string memory _domain)
-        public
-        view
-        returns (address)
+    function queryDomainOwner(string memory _domain) public view returns (address)
     {
         address _owner;
         bool _taken;
@@ -126,10 +123,7 @@ contract Registry {
         return _domainName;
     }
 
-    function queryDomainFromPayableAddr(address _payableAddr)
-        public
-        view
-        returns (string memory domainName)
+    function queryDomainFromPayableAddr(address _payableAddr) public view returns (string memory domainName)
     {
         string memory _domainName = "";
         bytes32 _currentNamehash;

@@ -34,6 +34,9 @@ function QueryDomain({ auctFactInstance, regInstance, regAddr, accountAddress })
   const classes = useStyles();
   const [queryInput, setQueryInput] = useState('');
   const [queryResult, setQueryResult] = useState('');
+  const [canRegister, setCanRegister] = useState(false);
+  const [intervalTime, setIntervalTime] = useState(0);
+  const [bidIncrement, setBidIncrement] = useState(0);
   const [startAuctFee, setStartAuctFee] = useState(1);
 
   const handleAllQuery = useCallback((queryInput, queryChoice) => {
@@ -50,6 +53,7 @@ function QueryDomain({ auctFactInstance, regInstance, regAddr, accountAddress })
           .call()
           .then((result) => {
             setQueryResult(result);
+            setCanRegister(true);
           });
       } else if (queryChoice === 3) {
           regInstance.methods.queryDomainFromOwner(queryInput)
@@ -57,7 +61,7 @@ function QueryDomain({ auctFactInstance, regInstance, regAddr, accountAddress })
             .then((result) => {
               setQueryResult(result);
             })
-            .catch((error) => { console.log(error); });      
+            .catch((error) => { console.log(error); });
       } else if (queryChoice === 4) {
         regInstance.methods.queryDomainFromOwner(queryInput)
           .call()
@@ -66,6 +70,9 @@ function QueryDomain({ auctFactInstance, regInstance, regAddr, accountAddress })
           })
           .catch((error) => { console.log(error); });
       }
+    }
+    if (true) {
+      console.log("Hello");
     }
   }, [regInstance]);
 
@@ -84,7 +91,7 @@ function QueryDomain({ auctFactInstance, regInstance, regAddr, accountAddress })
   return (
     <>
       <Paper className={classes.root} elevation={2}>
-        <Typography align="center" variant="h3">>Welcome to Auction dDNS dApp Query</Typography>
+        <Typography align="center" variant="h3">Welcome to Auction dDNS dApp Query</Typography>
         <br />
         <TextField id="query-input" label="Type Domain or Address Here" type="text" className={classes.textField} onChange={ (event) => {setQueryInput(event.target.value)}}/>
         <br />
@@ -93,6 +100,9 @@ function QueryDomain({ auctFactInstance, regInstance, regAddr, accountAddress })
         <br />
         <Button className={classes.button} variant="outlined" color="primary" onClick={() => handleAllQuery(queryInput, 3)}>Query Owner's Domains</Button>
         <Button className={classes.button} variant="outlined" color="primary" onClick={() => handleAllQuery(queryInput, 4)}>Query Register Address Domain</Button>
+        <br />
+        {(queryResult !== '') && <Typography align="center" variant="h3" value={queryResult} />}
+        {(canRegister === true) && <Button className={classes.button} variant="outlined" color="primary" value="Test"/>}
       </Paper>
 
     </>

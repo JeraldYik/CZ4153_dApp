@@ -167,7 +167,7 @@ function QueryDomain({ auctFactInstance, regInstance, regAddr, accountAddress })
     <>
       <Paper className={classes.root} elevation={2}>
 
-        <Typography align="center" variant="h3">Welcome to Auction dDNS dApp Query</Typography>
+        <Typography align="center" variant="h3"> ~ DDNS Queries Manager ~ </Typography>
         <br />
         <TextField id="query-input" label="Type Domain or Address Here" type="text" className={classes.textField} onChange={ (event) => {setQueryInput(event.target.value)}}/>
         <br /><br />

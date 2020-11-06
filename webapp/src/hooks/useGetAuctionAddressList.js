@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-function useGetAuctionAddressesList({ auctFactInstance }) {
+function useGetAuctionAddressList({ auctFactInstance }) {
 
   const [auctionAddressList, setAuctionAddressList] = useState([]);
 
@@ -17,4 +17,4 @@ function useGetAuctionAddressesList({ auctFactInstance }) {
   return auctionAddressList;
 }
 
-export default useGetAuctionAddressesList;
+export default useGetAuctionAddressList;

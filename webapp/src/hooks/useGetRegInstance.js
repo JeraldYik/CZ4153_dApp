@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-function useGetRegInstance({ web3, contract, auctFactInstance }) {
+function useGetRegInstance({ web3, auctFactInstance, contract }) {
   const [regAddr, setRegAddr] = useState(null);
   const [regInstance, setRegInstance] = useState(null);
 

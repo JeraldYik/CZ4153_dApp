@@ -20,7 +20,7 @@ import useGetAuctionInstances from './hooks/useGetAuctionInstances';
 import QueryDomain from './components/QueryDomain.js';
 import ManageDomain from './components/ManageDomain.js';
 import OngoingAuctions from './components/OngoingAuctions.js';
-import PayDomain from './components/PayDomain.js';
+// import PayDomain from './components/PayDomain.js';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -34,7 +34,7 @@ const useStyles = makeStyles(() => ({
     transform: 'translate(-50%,-50%)',
   },
   button: {
-    width: '40%',
+    width: '70%',
     margin: '10px',
   },
   container: {
@@ -136,17 +136,16 @@ const App = () => {
       <div>
         <Typography align="center" variant="h6">Your Wallet: {userAccounts}</Typography>
         <br />
-        <Button className={classes.button} variant="outlined" color="primary" onClick={() => handlePageChange("Ongoing Auctions")}>Ongoing Auctions</Button>
-        <Button className={classes.button} variant="outlined" color="primary" onClick={() => handlePageChange("Query Domain")}>Query Domain</Button>
+        <Button className={classes.button} variant="contained" color="primary" onClick={() => handlePageChange("Ongoing Auctions")}>Ongoing Auctions</Button>
         <br />
-        <Button className={classes.button} variant="outlined" color="primary" onClick={() => handlePageChange("Pay a Domain")}>Pay a Domain</Button>
-        <Button className={classes.button} variant="outlined" color="primary" onClick={() => handlePageChange("Manage Domains")}>Manage Domains</Button>
+        <Button className={classes.button} variant="contained" color="primary" onClick={() => handlePageChange("Query Domain")}>Query Domain</Button>
+        <br />
+        <Button className={classes.button} variant="contained" color="primary" onClick={() => handlePageChange("Manage Domains")}>Manage Domains</Button>
         <br />
       </div>
       <Container className={classes.container}>
         {(currentPage === 'Ongoing Auctions') && <OngoingAuctions/>}
         {(currentPage === 'Query Domain') && <QueryDomain auctFactInstance={auctFactInstance} regInstance={regInstance} regAddr={regAddr} accountAddress={userAccounts?.[0]}/>}
-        {(currentPage === 'Pay a Domain') && <PayDomain/>}
         {(currentPage === 'Manage Domains') && <ManageDomain/>}
       </Container>
     </Paper>

@@ -10,7 +10,8 @@ function useGetAuctionAddressList({ auctFactInstance }) {
         .call()
         .then((addresses) => {
           setAuctionAddressList(addresses);
-        });
+        })
+        .catch((error) => console.log(error));
     }
   }, [auctFactInstance]);
 

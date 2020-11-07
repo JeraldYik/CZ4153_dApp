@@ -4,6 +4,8 @@
   "private": true,
   "dependencies": {
     "@material-ui/core": "^4.11.0",
+    "@material-ui/icons": "^4.9.1",
+    "@material-ui/lab": "^4.0.0-alpha.56",
     "@metamask/detect-provider": "^1.1.0",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",
@@ -16,7 +18,8 @@
     "parcel-bundler": "^1.12.4"
   },
   "scripts": {
-    "copy-contracts": "xcopy ../build/contracts ./src",
+    "copy-contracts:cp": "cp -R ../build/contracts ./src",
+    "copy-contracts:xcopy": "xcopy ../build/contracts ./src",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",

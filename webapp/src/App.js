@@ -1,6 +1,4 @@
 import React, {useState, useEffect} from "react";
-import User from './components/User';
-import Web3 from 'web3'
 import './App.css';
 import {
   makeStyles, Paper, Button, Typography, Container
@@ -17,6 +15,7 @@ import useGetRegInstance from './hooks/useGetRegInstance';
 import useGetAuctionAddressList from './hooks/useGetAuctionAddressList';
 import useGetAuctionDomainList from './hooks/useGetAuctionDomainList'
 import useGetAuctionInstances from './hooks/useGetAuctionInstances';
+import useGetAuctionDetailsList from './hooks/useGetAuctionDetailsList';
 
 import QueryDomain from './components/QueryDomain.js';
 import ManageDomain from './components/ManageDomain.js';
@@ -53,6 +52,7 @@ const App = () => {
   const { regInstance, regAddr } = useGetRegInstance({ web3, auctFactInstance, contract: Registry });
   const auctionAddressesList = useGetAuctionAddressList({ auctFactInstance });
   const auctionDomainsList = useGetAuctionDomainList({ auctFactInstance });
+  const auctionDetailsList = useGetAuctionDetailsList({ auctFactInstance, auctionAddressesList, auctionDomainsList });
   const auctionInstances = useGetAuctionInstances({ web3, contractAddresses: auctionAddressesList, contract: BlindAuction });
 
   const [domainName, setDomainName] = useState('');
@@ -61,10 +61,6 @@ const App = () => {
   const [query, setQuery] = useState(0);
   const [queryResult, setQueryResult] = useState('');
   const [queryReceipt, setQueryReceipt] = useState('');
-
-  const handleDomainNameChange = (e) => {
-    setDomainName(e.target.value);
-  }
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -89,8 +85,8 @@ const App = () => {
         <br />
       </div>
       <Container className={classes.container}>
-        {(currentPage === 'Ongoing Auctions') && <OngoingAuctions auctionInstances={auctionInstances} auctionAddressesList={auctionAddressesList} auctionDomainsList={auctionDomainsList}/>}
-        {(currentPage === 'Query Domain') && <QueryDomain auctFactInstance={auctFactInstance} regInstance={regInstance} regAddr={regAddr} auctionDomainsList={auctionDomainsList} accountAddress={userAccounts?.[0]} />}
+        {(currentPage === 'Ongoing Auctions') && <OngoingAuctions auctionDetailsList={auctionDetailsList} auctFactInstance={auctFactInstance}/>}
+        {(currentPage === 'Query Domain') && <QueryDomain auctFactInstance={auctFactInstance} regInstance={regInstance} regAddr={regAddr} accountAddress={userAccounts?.[0]}/>}
         {(currentPage === 'Manage Domains') && <ManageDomain userAccounts={userAccounts} web3={web3} regInstance={regInstance}/>}
       </Container>
     </Paper>

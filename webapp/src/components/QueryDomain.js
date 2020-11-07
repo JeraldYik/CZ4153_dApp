@@ -1,7 +1,7 @@
 import {
   makeStyles, Button, Typography, Paper, TextField, Slider, Modal
 } from '@material-ui/core';
-import React, {useState, useCallback} from "react";
+import React, {useState, useCallback, useMemo} from "react";
 import Web3 from 'web3';
 
 const useStyles = makeStyles(() => ({
@@ -45,21 +45,24 @@ function QueryDomain({ auctFactInstance, regInstance, regAddr, auctionDomainsLis
   const classes = useStyles();
 
   // Remove Null Characters from Domains List
-  const auctionTrimDomainsList = [];
-  for (var i = 0 ; i < auctionDomainsList.length ; i++) {
-    var temp = auctionDomainsList[i];
-    temp = temp.replace(/\0/g, '');
-    auctionTrimDomainsList.push(temp);
-  }
-  console.log(auctionTrimDomainsList);
+  const auctionTrimDomainsList = useMemo(() => trimDomainsList(auctionDomainsList), [auctionDomainsList]);
 
+  function trimDomainsList(auctionDomainsList) {
+    const array = []
+    if (auctionDomainsList) {
+      for (var i = 0 ; i < auctionDomainsList.length ; i++) {
+        var temp = auctionDomainsList[i];
+        temp = temp.replace(/\0/g, '');
+        array.push(temp);
+      }
+    } return array;
+  }
   // State Var for querying
   const [queried, setQueried] = useState(0);
   const [queryInput, setQueryInput] = useState('');
   const [queryResult, setQueryResult] = useState('');
   const [canRegister, setCanRegister] = useState(false);
   const [domOrAddr, setDomOrAddr] = useState('');
-  const [inAuctionList, setInAuctionList] = useState(false);
   // State Var for paying
   const [openModalOne, setOpenModalOne] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState(0);
@@ -71,7 +74,7 @@ function QueryDomain({ auctFactInstance, regInstance, regAddr, auctionDomainsLis
 
   const handleAllQuery = useCallback((queryInput, queryChoice) => {
     queryInput = queryInput.toLowerCase();
-    if(/^[a-zA-Z0-9- ]*$/.test(queryInput) == false) {
+    if(/^[a-zA-Z0-9- ]*$/.test(queryInput) === false) {
       alert('Your domain name contains illegal characters.');
     } else { setQueryInput(queryInput); };
 
@@ -124,7 +127,7 @@ function QueryDomain({ auctFactInstance, regInstance, regAddr, auctionDomainsLis
       }
     }
 
-  }, [regInstance, queryResult]);
+  }, [regInstance, queryResult, auctionTrimDomainsList]);
 
   const payDomain = useCallback((paymentAmount, queryResult) => {
     paymentAmount = paymentAmount.toString();
@@ -139,7 +142,7 @@ function QueryDomain({ auctFactInstance, regInstance, regAddr, auctionDomainsLis
           })
           .catch((error) => {console.log(error); });
     }
-  }, [regInstance])
+  }, [regInstance, accountAddress])
 
   const startAuction = useCallback((queryInput, bidIncrement, bidTime, revealTime) => {
     queryInput = queryInput.toString();
@@ -157,7 +160,7 @@ function QueryDomain({ auctFactInstance, regInstance, regAddr, auctionDomainsLis
             })
             .catch((error) => { console.log(error); });
     }
-  }, [auctFactInstance]);
+  }, [auctFactInstance, accountAddress]);
 
   const handleModalOpenModalOne = useCallback(() => {
     setOpenModalOne(true);
@@ -227,7 +230,7 @@ function QueryDomain({ auctFactInstance, regInstance, regAddr, auctionDomainsLis
         <Paper className={classes.modal}>
         <Typography align="center" variant="h5"> Bid Increments(in Ether): </Typography>
         <br/> <br/>
-        <Slider id="bid-increment" defaultValue={0.5} step={0.2} marks min={0.2} max={3} valueLabelDisplay="on" onChange={handleBidIncrement}></Slider>
+        <Slider id="bid-increment" defaultValue={0.5} step={0.1} marks min={0.2} max={3} valueLabelDisplay="on" onChange={handleBidIncrement}></Slider>
         <Typography align="center" variant="h5"> Bidding Time(in seconds): </Typography>
         <br/> <br/>
         <Slider defaultValue={60} step={5} min={30} max={180} valueLabelDisplay="on" onChange={handleBidTime}></Slider>

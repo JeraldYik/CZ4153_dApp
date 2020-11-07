@@ -158,7 +158,7 @@ contract AuctionFactory {
         uint256 _bidvalue,
         bool _fake,
         bytes32 _salt
-    ) public pure returns (bytes32 blindBid) {
+    ) public view returns (bytes32 blindBid) {
         blindBid = keccak256(abi.encodePacked(_bidvalue, _fake, _salt));
         return blindBid;
     }

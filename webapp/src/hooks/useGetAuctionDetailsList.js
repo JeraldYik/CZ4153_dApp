@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import Web3 from 'web3';
 
 function useGetAuctionDomainList({ auctFactInstance, auctionAddressesList, auctionDomainsList }) {
 

@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, { useState } from "react";
 import './App.css';
 import {
   makeStyles, Paper, Button, Typography, Container
@@ -55,16 +55,15 @@ const App = () => {
   const auctionDetailsList = useGetAuctionDetailsList({ auctFactInstance, auctionAddressesList, auctionDomainsList });
   const auctionInstances = useGetAuctionInstances({ web3, contractAddresses: auctionAddressesList, contract: BlindAuction });
 
-  const [domainName, setDomainName] = useState('');
-  const [ownerAddr, setOwnerAddr] = useState('');
   const [currentPage, setCurrentPage] = useState('');
-  const [query, setQuery] = useState(0);
-  const [queryResult, setQueryResult] = useState('');
-  const [queryReceipt, setQueryReceipt] = useState('');
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
   }
+
+  window.ethereum.on('accountsChanged', function (accounts) {
+    window.location.reload(false);
+  })
 
   return (
     <Paper className={classes.root} elevation={2}>
@@ -85,7 +84,7 @@ const App = () => {
         <br />
       </div>
       <Container className={classes.container}>
-        {(currentPage === 'Ongoing Auctions') && <OngoingAuctions auctionDetailsList={auctionDetailsList} auctFactInstance={auctFactInstance}/>}
+        {(currentPage === 'Ongoing Auctions') && <OngoingAuctions auctionDetailsList={auctionDetailsList} auctFactInstance={auctFactInstance} userAccounts={userAccounts} auctionInstances={auctionInstances}/>}
         {(currentPage === 'Query Domain') && <QueryDomain auctFactInstance={auctFactInstance} regInstance={regInstance} regAddr={regAddr} accountAddress={userAccounts?.[0]}/>}
         {(currentPage === 'Manage Domains') && <ManageDomain userAccounts={userAccounts} web3={web3} regInstance={regInstance}/>}
       </Container>

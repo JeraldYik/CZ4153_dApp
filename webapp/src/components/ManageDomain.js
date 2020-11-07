@@ -1,10 +1,8 @@
 import {
-  makeStyles, Button, Typography, Paper, TextField, Slider, Modal
+  makeStyles, Button, Typography, Paper, TextField, Modal, Table, TableContainer, TableHead, TableBody, TableCell, TableRow
 } from '@material-ui/core';
 import React, {useState, useCallback} from "react";
 import Web3 from 'web3';
-import { useGetWeb3 } from '../hooks/useGetWeb3';
-import useGetAccounts from '../hooks/useGetAccounts';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -18,15 +16,9 @@ const useStyles = makeStyles(() => ({
     margin: '0.35em',
     padding: '5px',
   },
-  bidbutton: {
-    width: '85%',
+  title: {
+    height: '85%',
     margin: '0.5em',
-    padding: '10px',
-  },
-  smallbutton: {
-    width: '50%',
-    margin: '0.5em',
-    marginLeft: '100px',
     padding: '10px',
   },
   modal: {
@@ -48,18 +40,43 @@ function ManageDomain({ userAccounts, web3, regInstance }) {
 
   const [ownedDomains, setOwnedDomains] = useState([]);
   const [regDomains, setRegDomains] = useState([]);
+  const [ownedDomainsRowState, setOwnedDomainsRowState] = useState([]);
+  const [regDomainsRowState, setRegDomainsRowState] = useState([]);
+
+  function createData(domainName) {
+    return { domainName };
+  }
 
   const handleQuery = useCallback(() => {
     if(regInstance) {
       regInstance.methods.queryDomainFromOwner(userAccounts[0])
       .call()
       .then((result) => {
-        alert(result);
         setOwnedDomains(result);
       });
+      regInstance.methods.queryDomainFromPayableAddr(userAccounts[0])
+      .call()
+      .then((result) => {
+        setRegDomains(result);
+      });
     }
-    console.log(regDomains);
+    if (ownedDomains || regDomains) {
+      var ownedDomainsRow = [];
+      var regDomainsRow = [];
+      for (var i=0; i < ownedDomains.length; i++) {
+        var owntemp = createData(ownedDomains[i])
+        ownedDomainsRow.push(owntemp);
+      }
+      for (var j=0; j < regDomains.length; j++) {
+        var regtemp = createData(regDomains[j])
+        regDomainsRow.push(regtemp);
+      }
+      setOwnedDomainsRowState(ownedDomainsRow);
+      setRegDomainsRowState(regDomainsRow);
+    }
   }, [userAccounts, web3, regInstance, ownedDomains]);
+
+
 
   return (
     <>
@@ -67,8 +84,28 @@ function ManageDomain({ userAccounts, web3, regInstance }) {
       <Typography align="center" variant="h3"> ~ Manage Your Domains ~ </Typography>
       <br/>
       {(userAccounts) && <Button className={classes.button} variant="contained" color="primary" onClick={() => handleQuery()}>Find My Domains!</Button>}
-
       </Paper>
+
+      {(ownedDomainsRowState) &&
+      <TableBody>
+          {ownedDomainsRowState.map((row) => (
+            <TableRow key={row.domainName}>
+              <TableCell component="th" scope="row">
+                {row.domainName}
+              </TableCell>
+              <TableCell value={row.domainName} align="center">
+                <Button>
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      }
+
+
+
+
+
     </>
   );
 }

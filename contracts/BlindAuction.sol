@@ -155,29 +155,6 @@ contract BlindAuction {
     return true;
   }
 
-  // function to get the bid details as an array of bool
-  // function getAuctionDetailsBool() public view returns (bool[] memory _auctionDetails) {
-  //   uint _bidIncrement = bidIncrement;
-  //   uint _bidTime = biddingEnd;
-  //   uint _revealTime = revealEnd;
-  //   bool _bidEnded;
-  //   bool _revealEnded;
-  //   bool _isItCanceled;
-  //   if (block.timestamp >= biddingEnd) {
-  //     _bidEnded = true;
-  //   } else { _bidEnded = false; }
-  //   if (block.timestamp >= revealEnd) {
-  //     _revealEnded = true;
-  //   } else { _revealEnded = false; }
-  //   if (canceled == true) {
-  //     _isItCanceled = true;
-  //   } else { _isItCanceled = false; }
-  //   _auctionDetails.push(_bidEnded);
-  //   _auctionDetails.push(_revealEnded);
-  //   _auctionDetails.push(_isItCanceled);
-  //   return _auctionDetails;
-  // }
-
   // function to get the bid details as an array of uint
   function getAuctionDetails() public view returns (uint[] memory _auctionDetails) {
     return auctionDetails;

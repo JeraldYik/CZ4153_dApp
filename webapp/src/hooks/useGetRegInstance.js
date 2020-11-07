@@ -17,8 +17,7 @@ function useGetRegInstance({ web3, auctFactInstance, contract }) {
         setRegInstance(inst);
         });
     }
-  }, [auctFactInstance, web3]);
-
+  }, [auctFactInstance, web3, contract]);
   return { regInstance, regAddr };
 }
 

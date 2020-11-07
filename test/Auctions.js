@@ -15,16 +15,16 @@ contract("AuctionFactory and BlindAuction", async (accounts) => {
   beforeEach(async function() {
     // Advance to the next block to correctly read time in the solidity
     await time.advanceBlock();
-
     auctionfactory = await AuctionFactory.deployed();
     const regAddr = await auctionfactory.registryAddr();
     registry = new Registry(regAddr);
   });
 
-
   it("should make deployer the owner", async () => {
     const owner = await auctionfactory.owner();
+    const _owner = await auctionfactory.auctFactOwner();
     assert.equal(owner, accounts[0]);
+    assert.equal(_owner, accounts[0]);
   });
 
   // A new contract address should be generated when it is deployed
@@ -34,6 +34,25 @@ contract("AuctionFactory and BlindAuction", async (accounts) => {
     const addr = await auctionfactory.findAuction.call("CZ4153");
     assert.equal(contract, addr);
   });
+
+  // The bid contract details should be callable
+  it("should query Blind Auction details successfully", async () => {
+    const contractinstance = new BlindAuction(contract);
+    const auctionDetails = await contractinstance.getAuctionDetails.call();
+    const timeNow = await time.latest();
+    const dateNow = new Date(timeNow * 1000);
+    const bidEndTime = new Date(auctionDetails[1] * 1000);
+    const revealEndTime = new Date(auctionDetails[2] * 1000);
+    console.log(dateNow);
+    console.log(bidEndTime);
+    console.log(revealEndTime);
+    const biddingTime = (bidEndTime - dateNow) / 1000;
+    const revealTime = (revealEndTime - bidEndTime) / 1000;
+    assert.equal(biddingTime, 90);
+    assert.equal(revealTime, 90);
+    assert.equal(auctionDetails[0], 50000);
+  });
+
 
   // Able to accept valid bids during bidding period and reveal bids after it ends
   it("should be able to accept bids during an ongoing Auction successfully", async () => {

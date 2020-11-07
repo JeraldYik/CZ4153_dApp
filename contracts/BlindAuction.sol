@@ -8,6 +8,7 @@ contract BlindAuction {
   uint public biddingEnd;
   uint public revealEnd;
   bytes32 public namehash;
+  uint[] public auctionDetails;
 
   // State variables
   bool public canceled = false;
@@ -42,6 +43,9 @@ contract BlindAuction {
     owner = _auctfactowner;
     bidIncrement = _bidIncrement;
     namehash = _namehash;
+    auctionDetails.push(_bidIncrement);
+    auctionDetails.push(biddingEnd);
+    auctionDetails.push(revealEnd);
 }
 
 
@@ -151,12 +155,40 @@ contract BlindAuction {
     return true;
   }
 
-  function checkCancel() public view onlyAfter(revealEnd) returns (bool success) {
+  // function to get the bid details as an array of bool
+  // function getAuctionDetailsBool() public view returns (bool[] memory _auctionDetails) {
+  //   uint _bidIncrement = bidIncrement;
+  //   uint _bidTime = biddingEnd;
+  //   uint _revealTime = revealEnd;
+  //   bool _bidEnded;
+  //   bool _revealEnded;
+  //   bool _isItCanceled;
+  //   if (block.timestamp >= biddingEnd) {
+  //     _bidEnded = true;
+  //   } else { _bidEnded = false; }
+  //   if (block.timestamp >= revealEnd) {
+  //     _revealEnded = true;
+  //   } else { _revealEnded = false; }
+  //   if (canceled == true) {
+  //     _isItCanceled = true;
+  //   } else { _isItCanceled = false; }
+  //   _auctionDetails.push(_bidEnded);
+  //   _auctionDetails.push(_revealEnded);
+  //   _auctionDetails.push(_isItCanceled);
+  //   return _auctionDetails;
+  // }
+
+  // function to get the bid details as an array of uint
+  function getAuctionDetails() public view returns (uint[] memory _auctionDetails) {
+    return auctionDetails;
+  }
+
+  // function to check cancel
+  function checkCancel() public view returns (bool success) {
     if (canceled == true) {
       return true;
     } else { return false; }
   }
-
 
   // Pure functions and modifiers
 

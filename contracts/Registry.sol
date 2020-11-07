@@ -1,15 +1,15 @@
 pragma solidity >=0.4.22 <0.8.0;
 
 contract Registry {
+    constructor(address _auctFactOwner) public {
+      owner = _auctFactOwner;
+    }
     //static variable
     address public owner;
     mapping(bytes32 => Record) public records;
     bytes32[] public recordsKeys;
     address public test = address(this);
 
-    constructor() public {
-        owner = msg.sender;
-    }
 
     struct Record {
         address payable currentPayableAddr;
@@ -168,6 +168,11 @@ contract Registry {
     // Calls the deployed registry address
     function getRegAddress() public view returns (address) {
         return address(this);
+    }
+
+    // Calls reg owner
+    function getRegOwner() public view returns (address) {
+        return owner;
     }
 
     modifier only_owner(bytes32 namehash) {

@@ -16,7 +16,7 @@ contract AuctionFactory {
     address public owner;
 
     // Instantiating new Registry
-    Registry registry = new Registry();
+    Registry registry = new Registry(msg.sender);
 
     // Declaring Structs used in this contract
     struct AuctionParam {
@@ -166,6 +166,11 @@ contract AuctionFactory {
     function registryAddr() public view returns (address) {
         address regAddr = registry.getRegAddress();
         return regAddr;
+    }
+
+    function auctFactOwner() public view returns (address) {
+      address _auctFactOwner = owner;
+      return _auctFactOwner;
     }
 
     // Find and return only ongoing auctions from domain name

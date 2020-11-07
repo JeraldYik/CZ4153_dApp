@@ -86,8 +86,8 @@ function OngoingAuctions({ auctionDetailsList, auctFactInstance, userAccounts, a
   const commitBid = useCallback(() => {
     const digits = /^[0-9]*$/;
     if (digits.test(parseInt(bidAmount))) {
-      console.log(`submit bid for ${domainSelected} with bid amount ${bidAmount}, fake ${isFake}, salt ${salt}`);
-      auctFactInstance.methods.bidHash(bidAmount, isFake, web3.utils.fromAscii(salt))
+      console.log(`submit bid for ${domainSelected} with bid amount ${bidAmount} Gwei, fake ${isFake}, salt ${salt}`);
+      auctFactInstance.methods.bidHash(bidAmount*Math.pow(10,9), isFake, web3.utils.fromAscii(salt))
         .call()
         .then(blindBid =>
           auctFactInstance.methods.commitBid(domainSelected, blindBid)

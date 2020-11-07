@@ -153,7 +153,7 @@ function QueryDomain({ auctFactInstance, regInstance, regAddr, auctionDomainsLis
     alert("Bidding Increment: " + bidIncrement + " Eth, Bidding Time: " + bidTime + "s, Reveal Time: " + revealTime + "s");
     if (auctFactInstance) {
       auctFactInstance.methods
-            .createAuction(bidIncrement*(10^18), bidTime, revealTime, queryInput)
+            .createAuction(bidIncrement*(Math.pow(10,9)), bidTime, revealTime, queryInput)
             .send({ from: accountAddress, value: Web3.utils.toWei('100000', 'gwei') })
             .then((address) => {
               window.location.reload(false);

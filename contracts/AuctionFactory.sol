@@ -129,7 +129,7 @@ contract AuctionFactory {
         return auction.getAuctionDetails();
     }
 
-    function commitBid(string memory domain, bytes32 _blindBid) public {
+    function commitBid(string memory domain, bytes32 _blindBid) public payable {
         BlindAuction auction = getAuction(domain);
         auction.commitBid(_blindBid);
     }

@@ -342,12 +342,12 @@ contract("Simulation", async (accounts) => {
     console.log("Bidder 2 transferred 'CZ4153.ntu' to Bidder 1 successfully");
 
     // Bidder 1 and 3 attempts to designate payable address for CZ4153.ntu
-    await truffleAssert.reverts(registry.setAddr(czhash, recipient, {
+    await truffleAssert.reverts(registry.setPayableAddr(czhash, recipient, {
         from: bidder3,
         gas: "400000"
       }), "Only owner is authorised to perform this action!"
     );
-    await registry.setAddr(czhash, recipient, {
+    await registry.setPayableAddr(czhash, recipient, {
         from: bidder1,
         gas: "400000"
       });
@@ -357,9 +357,13 @@ contract("Simulation", async (accounts) => {
 
     // Reverse queries
     const domainByOwner = await registry.queryDomainFromOwner.call(bidder1);
+    const domainByOwnerOne = Web3.utils.hexToAscii(domainByOwner[0]);
+    const domainByOwnerOneTrim = domainByOwnerOne.replace(/\0/g, '');
     const domainByPayableAddr = await registry.queryDomainFromPayableAddr.call(recipient);
-    assert.equal(domainByOwner, "CZ4153");
-    assert.equal(domainByOwner, domainByPayableAddr);
+    const domainByPayableAddrOne = Web3.utils.hexToAscii(domainByPayableAddr[0]);
+    const domainByPayableAddrOneTrim = domainByPayableAddrOne.replace(/\0/g, '');
+    assert.equal(domainByOwnerOneTrim, "CZ4153");
+    assert.equal(domainByOwnerOneTrim, domainByPayableAddrOneTrim);
     console.log("Reverse query functions are working!")
 
     // Send recipient some Ether

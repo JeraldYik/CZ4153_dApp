@@ -41,13 +41,25 @@ const useStyles = makeStyles(() => ({
   },
 }));
 
-function QueryDomain({ auctFactInstance, regInstance, regAddr, accountAddress }) {
+function QueryDomain({ auctFactInstance, regInstance, regAddr, auctionDomainsList, accountAddress }) {
   const classes = useStyles();
+
+  // Remove Null Characters from Domains List
+  const auctionTrimDomainsList = [];
+  for (var i = 0 ; i < auctionDomainsList.length ; i++) {
+    var temp = auctionDomainsList[i];
+    temp = temp.replace(/\0/g, '');
+    auctionTrimDomainsList.push(temp);
+  }
+  console.log(auctionTrimDomainsList);
+
   // State Var for querying
+  const [queried, setQueried] = useState(0);
   const [queryInput, setQueryInput] = useState('');
   const [queryResult, setQueryResult] = useState('');
-  const [canRegister, setCanRegister] = useState(null);
+  const [canRegister, setCanRegister] = useState(false);
   const [domOrAddr, setDomOrAddr] = useState('');
+  const [inAuctionList, setInAuctionList] = useState(false);
   // State Var for paying
   const [openModalOne, setOpenModalOne] = useState(false);
   const [paymentAmount, setPaymentAmount] = useState(0);
@@ -58,8 +70,14 @@ function QueryDomain({ auctFactInstance, regInstance, regAddr, accountAddress })
   const [bidIncrement, setBidIncrement] = useState(0.5);
 
   const handleAllQuery = useCallback((queryInput, queryChoice) => {
+    queryInput = queryInput.toLowerCase();
+    if(/^[a-zA-Z0-9- ]*$/.test(queryInput) == false) {
+      alert('Your domain name contains illegal characters.');
+    } else { setQueryInput(queryInput); };
+
     if (regInstance) {
       if (queryChoice === 1) {
+        setQueried(1);
         setDomOrAddr('address');
         regInstance.methods.queryDomainOwner(queryInput)
           .call()
@@ -67,13 +85,16 @@ function QueryDomain({ auctFactInstance, regInstance, regAddr, accountAddress })
             setQueryResult(result);
           });
       } else if (queryChoice === 2) {
+        setQueried(2);
         setDomOrAddr('address');
+        if (auctionTrimDomainsList.includes(queryInput)) { setCanRegister(false); }
         regInstance.methods.queryDomainPayableAddr(queryInput)
           .call()
           .then((result) => {
             setQueryResult(result);
           });
       } else if (queryChoice === 3) {
+        setQueried(3);
         setDomOrAddr('domain');
         if (Web3.utils.isAddress(queryInput)) {
           regInstance.methods.queryDomainFromOwner(queryInput)
@@ -83,6 +104,7 @@ function QueryDomain({ auctFactInstance, regInstance, regAddr, accountAddress })
             });
         } else (alert("That is not a valid address!"));
       } else if (queryChoice === 4) {
+        setQueried(4);
         setDomOrAddr('domain');
         if (Web3.utils.isAddress(queryInput)) {
           regInstance.methods.queryDomainFromOwner(queryInput)
@@ -96,8 +118,10 @@ function QueryDomain({ auctFactInstance, regInstance, regAddr, accountAddress })
 
     if (queryResult === '') {
       if (queryChoice === 1 || queryChoice === 2) {
-        setCanRegister(true)
-      } else {setCanRegister(false)}
+        if (auctionTrimDomainsList.includes(queryInput)) {
+          setCanRegister(false);
+        } else { setCanRegister(true); }
+      }
     }
 
   }, [regInstance, queryResult]);
@@ -177,8 +201,8 @@ function QueryDomain({ auctFactInstance, regInstance, regAddr, accountAddress })
         <Button className={classes.button} variant="outlined" color="primary" onClick={() => handleAllQuery(queryInput, 3)}>Query Owner's Domains</Button>
         <Button className={classes.button} variant="outlined" color="primary" onClick={() => handleAllQuery(queryInput, 4)}>Query Register Address Domain</Button>
         <br /><br />
-        {(queryResult !== '') && (domOrAddr === 'address') && <Typography align="center" variant="h5"> Address: {queryResult} </Typography>}
-        {(queryResult === '') && (domOrAddr === 'domain') && <Typography align="center" variant="h5"> Domain Not Found! </Typography>}
+        {(queried === 1 || queried === 2) && (queryResult !== '') && (domOrAddr === 'address') && <Typography align="center" variant="h5"> Address: {queryResult} </Typography>}
+        {(queried === 3 || queried === 4) && (queryResult === '') && (domOrAddr === 'domain') && <Typography align="center" variant="h5"> Domain Not Found! </Typography>}
 
         {(queryResult !== '') && (domOrAddr === 'domain') && <Typography align="center" variant="h5"> Domain Name: {queryResult} </Typography>}
         {(queryResult !== '') && (domOrAddr === 'domain') && <Button className={classes.bidbutton} variant="contained" color="primary" onClick={() => handleModalOpenModalOne()}> Pay this Domain! </Button>}
@@ -193,8 +217,9 @@ function QueryDomain({ auctFactInstance, regInstance, regAddr, accountAddress })
         </Paper>
         </Modal>
 
-        {(canRegister === true) && <Typography align="center" variant="h5"> Domain is available! </Typography>}
-        {(canRegister === true) && <Button className={classes.bidbutton} variant="contained" color="primary" onClick={() => handleModalOpenModalTwo()}> Start an Auction for this Domain! </Button>}
+        {(queried === 1 || queried === 2) && (queryResult === '') && (canRegister === false) && <Typography align="center" variant="h5"> Domain is currently on auction! </Typography>}
+        {((queried === 1 || queried === 2) && queryResult === '') && (canRegister === true) && <Typography align="center" variant="h5"> Domain is available! </Typography>}
+        {(queried === 1 || queried === 2) && (queryResult === '') && (canRegister === true) && <Button className={classes.bidbutton} variant="contained" color="primary" onClick={() => handleModalOpenModalTwo()}> Start an Auction for this Domain! </Button>}
         <Modal
         open={openModalTwo}
         onClose={handleCloseModalTwo}

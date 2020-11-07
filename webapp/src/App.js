@@ -20,7 +20,7 @@ import useGetAuctionInstances from './hooks/useGetAuctionInstances';
 
 import QueryDomain from './components/QueryDomain.js';
 import ManageDomain from './components/ManageDomain.js';
-import OngoingAuctions from './components/OngoingAuctions.js';
+import OngoingAuctions from './components/OngoingAuctions';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -45,8 +45,9 @@ const useStyles = makeStyles(() => ({
 }));
 
 const App = () => {
-  const web3 = useGetWeb3();
   const classes = useStyles();
+
+  const web3 = useGetWeb3();
   const userAccounts = useGetAccounts({ web3 });
   const { auctFactInstance, auctFactAddr } = useGetAuctFactInstance({ web3, contract: AuctionFactory });
   const { regInstance, regAddr } = useGetRegInstance({ web3, auctFactInstance, contract: Registry });
@@ -89,8 +90,8 @@ const App = () => {
       </div>
       <Container className={classes.container}>
         {(currentPage === 'Ongoing Auctions') && <OngoingAuctions auctionInstances={auctionInstances} auctionAddressesList={auctionAddressesList} auctionDomainsList={auctionDomainsList}/>}
-        {(currentPage === 'Query Domain') && <QueryDomain auctFactInstance={auctFactInstance} regInstance={regInstance} regAddr={regAddr} accountAddress={userAccounts?.[0]}/>}
-        {(currentPage === 'Manage Domains') && <ManageDomain/>}
+        {(currentPage === 'Query Domain') && <QueryDomain auctFactInstance={auctFactInstance} regInstance={regInstance} regAddr={regAddr} auctionDomainsList={auctionDomainsList} accountAddress={userAccounts?.[0]} />}
+        {(currentPage === 'Manage Domains') && <ManageDomain userAccounts={userAccounts} web3={web3} regInstance={regInstance}/>}
       </Container>
     </Paper>
   );

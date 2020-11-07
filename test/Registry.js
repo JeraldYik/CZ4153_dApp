@@ -1,3 +1,4 @@
+const Web3 = require('web3');
 const { assert } = require('chai');
 const truffleAssert = require('truffle-assertions');
 
@@ -91,7 +92,7 @@ contract("Registry and Resolver", async (accounts) => {
 
   it("can set payable address", async() => {
     const namehash = await registry.getDomainNamehash.call("CZ4153");
-    await registry.setAddr(namehash, accounts[5], {
+    await registry.setPayableAddr(namehash, accounts[5], {
       from: accounts[2],
       gas: "400000"
     });
@@ -102,7 +103,7 @@ contract("Registry and Resolver", async (accounts) => {
   it("cannot set payable address if you're not the owner", async() => {
     const namehash = await registry.getDomainNamehash.call("CZ4153");
     await truffleAssert.reverts(
-      registry.setAddr(namehash, accounts[5], {
+      registry.setPayableAddr(namehash, accounts[5], {
         from: accounts[0],
         gas: "400000" }),
         "revert Only owner is authorised to perform this action!"
@@ -121,13 +122,16 @@ contract("Registry and Resolver", async (accounts) => {
 
   it("can query domain from owner address", async() => {
     const domain = await registry.queryDomainFromOwner.call(accounts[2]);
-    assert.equal(domain, "CZ4153");
+    const domainOne = Web3.utils.hexToAscii(domain[0]);
+    const domainOneTrim = domainOne.replace(/\0/g, '');
+    assert.equal(domainOneTrim, "CZ4153");
   });
 
   it("can query domain from payable address", async() => {
     const domain = await registry.queryDomainFromPayableAddr.call(accounts[5]);
-    assert.equal(domain, "CZ4153");
+    const domainOne = Web3.utils.hexToAscii(domain[0]);
+    const domainOneTrim = domainOne.replace(/\0/g, '');
+    assert.equal(domainOneTrim, "CZ4153");
   });
-
 
 });

@@ -7,9 +7,9 @@ contract Registry {
     //static variable
     address public owner;
     mapping(bytes32 => Record) public records;
+    mapping(address => bytes32[]) public addrOwnerDomains;
+    mapping(address => bytes32[]) public regAddrOfDomains;
     bytes32[] public recordsKeys;
-    address public test = address(this);
-
 
     struct Record {
         address payable currentPayableAddr;
@@ -24,7 +24,7 @@ contract Registry {
         address owner,
         string domain,
         bool taken,
-        address contractAddr
+        bytes32[] test
     );
     event Transfer(bytes32 indexed namehash, address owner);
     event AddrChanged(bytes32 indexed namehash, address walletaddress);
@@ -45,12 +45,15 @@ contract Registry {
         });
         recordsKeys.push(_namehash);
 
+        bytes32[] memory finalDomainNameArray = getTrimmedArrayFromOwner(_owner);
+        addrOwnerDomains[_owner] = finalDomainNameArray;
+
         emit NewDomain(
             _namehash,
             msg.sender,
             records[_namehash].domain,
             records[_namehash].taken,
-            test
+            finalDomainNameArray
         );
     }
 
@@ -59,17 +62,31 @@ contract Registry {
         public
         only_owner(_namehash)
     {
-        emit Transfer(_namehash, _newowner);
-        setAddr(_namehash, address(uint160(_newowner)));
+        address oldOwner = msg.sender;
+        setPayableAddr(_namehash, address(uint160(_newowner)));
         records[_namehash].owner = _newowner;
+
+        bytes32[] memory oldOwnerDomains = getTrimmedArrayFromOwner(oldOwner);
+        bytes32[] memory newOwnerDomains = getTrimmedArrayFromOwner(_newowner);
+        addrOwnerDomains[oldOwner] = oldOwnerDomains;
+        addrOwnerDomains[_newowner] = newOwnerDomains;
+
+        emit Transfer(_namehash, _newowner);
     }
 
     // Designate a payable address for the registered domain
-    function setAddr(bytes32 _namehash, address payable _yourwalletaddr)
+    function setPayableAddr(bytes32 _namehash, address payable _yourwalletaddr)
         public
         only_owner(_namehash)
     {
+        address payable oldPayable = records[_namehash].currentPayableAddr;
         records[_namehash].currentPayableAddr = _yourwalletaddr;
+
+        bytes32[] memory oldPayableDomains = getTrimmedArrayFromPayable(oldPayable);
+        bytes32[] memory newPayableDomains = getTrimmedArrayFromPayable(_yourwalletaddr);
+        regAddrOfDomains[oldPayable] = oldPayableDomains;
+        regAddrOfDomains[_yourwalletaddr] = newPayableDomains;
+
         emit AddrChanged(_namehash, _yourwalletaddr);
     }
 
@@ -109,34 +126,59 @@ contract Registry {
       require(_taken == true, "This domain is available.");
     }
 
-    function queryDomainFromOwner(address _owner) public view returns (string memory domainName) {
-      string memory _domainName = "";
-      for (uint i = 0; i < recordsKeys.length; i++) {
-          bytes32 _currentNamehash = recordsKeys[i];
-          if (records[_currentNamehash].owner == _owner) {
-              _domainName = records[_currentNamehash].domain;
-          }
-      }
-      require(keccak256(abi.encodePacked((_domainName))) != keccak256(abi.encodePacked((""))),
-            "This address does not own a registered domain."
-        );
-        return _domainName;
+    function queryDomainFromOwner(address _owner) public view returns (bytes32[] memory domainNameArray) {
+        domainNameArray = addrOwnerDomains[_owner];
+        return domainNameArray;
     }
 
-    function queryDomainFromPayableAddr(address _payableAddr) public view returns (string memory domainName)
+    function queryDomainFromPayableAddr(address _payableAddr) public view returns (bytes32[] memory domainNameArray)
     {
-        string memory _domainName = "";
-        bytes32 _currentNamehash;
-        for (uint256 i = 0; i < recordsKeys.length; i++) {
-            _currentNamehash = recordsKeys[i];
-            if (records[_currentNamehash].currentPayableAddr == _payableAddr) {
-                _domainName = records[_currentNamehash].domain;
+        domainNameArray = regAddrOfDomains[_payableAddr];
+        return domainNameArray;
+    }
+
+    function getTrimmedArrayFromOwner(address target) public view returns (bytes32[] memory finalArray) {
+        bytes32[] memory currentDomainNameArray = new bytes32[](recordsKeys.length);
+        for (uint i = 0; i < recordsKeys.length; i++) {
+            bytes32 _currentNamehash = recordsKeys[i];
+            if (records[_currentNamehash].owner == target) {
+                string memory _domainName = records[_currentNamehash].domain;
+                bytes32 _domainNameInBytes = stringToBytes32(_domainName);
+                currentDomainNameArray[i] = _domainNameInBytes;
+            } else { currentDomainNameArray[i] = bytes32(0x0); }
+        }
+        finalArray = new bytes32[](recordsKeys.length);
+        uint elementCount = 0;
+        for (uint j = 0; j < currentDomainNameArray.length; j++) {
+            bytes32 currentDomainName = currentDomainNameArray[j];
+            if (currentDomainName != bytes32(0x0)) {
+              finalArray[elementCount] = currentDomainName;
+              elementCount = elementCount + 1;
             }
         }
-        require(keccak256(abi.encodePacked((_domainName))) != keccak256(abi.encodePacked((""))),
-            "This address is not designated a registered domain."
-        );
-        return _domainName;
+        return finalArray;
+    }
+
+    function getTrimmedArrayFromPayable(address target) public view returns (bytes32[] memory finalArray) {
+        bytes32[] memory currentDomainNameArray = new bytes32[](recordsKeys.length);
+        for (uint i = 0; i < recordsKeys.length; i++) {
+            bytes32 _currentNamehash = recordsKeys[i];
+            if (records[_currentNamehash].currentPayableAddr == target) {
+                string memory _domainName = records[_currentNamehash].domain;
+                bytes32 _domainNameInBytes = stringToBytes32(_domainName);
+                currentDomainNameArray[i] = _domainNameInBytes;
+            } else { currentDomainNameArray[i] = bytes32(0x0); }
+        }
+        finalArray = new bytes32[](recordsKeys.length);
+        uint elementCount = 0;
+        for (uint j = 0; j < currentDomainNameArray.length; j++) {
+            bytes32 currentDomainName = currentDomainNameArray[j];
+            if (currentDomainName != bytes32(0x0)) {
+              finalArray[elementCount] = currentDomainName;
+              elementCount = elementCount + 1;
+            }
+        }
+        return finalArray;
     }
 
     // Pure functions and modifiers
@@ -162,6 +204,22 @@ contract Registry {
             _namehash = keccak256(
                 abi.encodePacked(_namehash, keccak256(abi.encodePacked("ntu")))
             );
+        }
+    }
+
+    // Converts a string to bytes32 type
+    function stringToBytes32(string memory _source)
+        public
+        pure
+        returns (bytes32 result)
+    {
+        bytes memory tempEmptyStringTest = bytes(_source);
+        if (tempEmptyStringTest.length == 0) {
+            return 0x0;
+        }
+
+        assembly {
+            result := mload(add(_source, 32))
         }
     }
 

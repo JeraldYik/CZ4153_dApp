@@ -1,5 +1,4 @@
 import React, {useState, useEffect} from "react";
-import User from './components/User';
 import './App.css';
 import {
   makeStyles, Paper, Button, Typography, Container
@@ -85,7 +84,7 @@ const App = () => {
         <br />
       </div>
       <Container className={classes.container}>
-        {(currentPage === 'Ongoing Auctions') && <OngoingAuctions auctionDetailsList={auctionDetailsList} />}
+        {(currentPage === 'Ongoing Auctions') && <OngoingAuctions auctionDetailsList={auctionDetailsList} auctFactInstance={auctFactInstance}/>}
         {(currentPage === 'Query Domain') && <QueryDomain auctFactInstance={auctFactInstance} regInstance={regInstance} regAddr={regAddr} accountAddress={userAccounts?.[0]}/>}
         {(currentPage === 'Manage Domains') && <ManageDomain/>}
       </Container>

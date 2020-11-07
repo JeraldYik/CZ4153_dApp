@@ -1,9 +1,26 @@
-import React, {useState, useEffect} from "react";
+import {
+  makeStyles, Button, Typography, Paper, TextField, Slider, Modal
+} from '@material-ui/core';
+import React, {useState, useCallback} from "react";
+import Web3 from 'web3';
 
-const OngoingAuctions = () => {
+function OngoingAuctions({ auctionInstances, auctionAddressesList, auctionDomainsList }) {
+  console.log(auctionInstances);
+  console.log(auctionAddressesList);
+  console.log(auctionDomainsList);
+
+  // This method doesn't work
+  const auctionTrimDomainsList = [];
+  for (var i = 0 ; i < auctionDomainsList.length ; i++) {
+    var temp = auctionDomainsList[i];
+    temp = temp.trim();
+    auctionTrimDomainsList.push(temp);
+  }
+  console.log(auctionTrimDomainsList);
+
   return (
     <>
-      <h1>Welcome to Auction dDNS dApp Ongoing</h1>
+      <Typography align="center" variant="h3"> ~ Ongoing Auctions ~ </Typography>
     </>
   );
 }

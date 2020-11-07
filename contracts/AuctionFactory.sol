@@ -106,13 +106,31 @@ contract AuctionFactory {
     }
 
     // Expose relevant BlindAuction methods
-    function commitBid(string memory domain, bytes32 _blindBid) public {
+    function getAuction(string memory domain)
+        public
+        view
+        returns (BlindAuction)
+    {
         bytes32 _namehash = registry.getDomainNamehash(domain);
         require(
             auctions[_namehash].ended == false,
             "Auction has already ended!"
         );
         BlindAuction auction = auctions[_namehash].auctionContract;
+        return auction;
+    }
+
+    function getAuctionDetails(string memory domain)
+        public
+        view
+        returns (uint256[] memory _auctionDetails)
+    {
+        BlindAuction auction = getAuction(domain);
+        return auction.getAuctionDetails();
+    }
+
+    function commitBid(string memory domain, bytes32 _blindBid) public {
+        BlindAuction auction = getAuction(domain);
         auction.commitBid(_blindBid);
     }
 
@@ -122,32 +140,17 @@ contract AuctionFactory {
         bool[] memory _fake,
         bytes32[] memory _salt
     ) public {
-        bytes32 _namehash = registry.getDomainNamehash(domain);
-        require(
-            auctions[_namehash].ended == false,
-            "Auction has already ended!"
-        );
-        BlindAuction auction = auctions[_namehash].auctionContract;
+        BlindAuction auction = getAuction(domain);
         auction.revealBid(_bidvalue, _fake, _salt);
     }
 
     function withdraw(string memory domain) public {
-        bytes32 _namehash = registry.getDomainNamehash(domain);
-        require(
-            auctions[_namehash].ended == false,
-            "Auction has already ended!"
-        );
-        BlindAuction auction = auctions[_namehash].auctionContract;
+        BlindAuction auction = getAuction(domain);
         auction.withdraw();
     }
 
     function cancelAuction(string memory domain) public returns (bool success) {
-        bytes32 _namehash = registry.getDomainNamehash(domain);
-        require(
-            auctions[_namehash].ended == false,
-            "Auction has already ended!"
-        );
-        BlindAuction auction = auctions[_namehash].auctionContract;
+        BlindAuction auction = getAuction(domain);
         return auction.cancelAuction();
     }
 
@@ -169,8 +172,8 @@ contract AuctionFactory {
     }
 
     function auctFactOwner() public view returns (address) {
-      address _auctFactOwner = owner;
-      return _auctFactOwner;
+        address _auctFactOwner = owner;
+        return _auctFactOwner;
     }
 
     // Find and return only ongoing auctions from domain name
@@ -192,29 +195,17 @@ contract AuctionFactory {
     }
 
     // Returns number of ongoing auctions
-    function getAuctionsCount()
-        public
-        view
-        returns(uint256 auctionCount)
-    {
+    function getAuctionsCount() public view returns (uint256 auctionCount) {
         return auctionKeys.length;
     }
 
     // Returns all ongoing auctions' addresses
-    function allAuctionsAddr()
-        public
-        view
-        returns (BlindAuction[] memory)
-    {
+    function allAuctionsAddr() public view returns (BlindAuction[] memory) {
         return (allAuctAddr);
     }
 
     // Returns all ongoing auctions' domain names
-    function allAuctionsDomain()
-        public
-        view
-        returns (bytes32[] memory)
-    {
+    function allAuctionsDomain() public view returns (bytes32[] memory) {
         return (allAuctDomains);
     }
 

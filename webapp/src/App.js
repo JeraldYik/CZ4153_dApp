@@ -16,6 +16,7 @@ import useGetRegInstance from './hooks/useGetRegInstance';
 import useGetAuctionAddressList from './hooks/useGetAuctionAddressList';
 import useGetAuctionDomainList from './hooks/useGetAuctionDomainList'
 import useGetAuctionInstances from './hooks/useGetAuctionInstances';
+import useGetAuctionDetailsList from './hooks/useGetAuctionDetailsList';
 
 import QueryDomain from './components/QueryDomain.js';
 import ManageDomain from './components/ManageDomain.js';
@@ -51,6 +52,7 @@ const App = () => {
   const { regInstance, regAddr } = useGetRegInstance({ web3, auctFactInstance, contract: Registry });
   const auctionAddressesList = useGetAuctionAddressList({ auctFactInstance });
   const auctionDomainsList = useGetAuctionDomainList({ auctFactInstance });
+  const auctionDetailsList = useGetAuctionDetailsList({ auctFactInstance, auctionAddressesList, auctionDomainsList });
   const auctionInstances = useGetAuctionInstances({ web3, contractAddresses: auctionAddressesList, contract: BlindAuction });
 
   const [domainName, setDomainName] = useState('');
@@ -83,7 +85,7 @@ const App = () => {
         <br />
       </div>
       <Container className={classes.container}>
-        {(currentPage === 'Ongoing Auctions') && <OngoingAuctions auctionInstances={auctionInstances} auctionAddressesList={auctionAddressesList} auctionDomainsList={auctionDomainsList}/>}
+        {(currentPage === 'Ongoing Auctions') && <OngoingAuctions auctionDetailsList={auctionDetailsList} />}
         {(currentPage === 'Query Domain') && <QueryDomain auctFactInstance={auctFactInstance} regInstance={regInstance} regAddr={regAddr} accountAddress={userAccounts?.[0]}/>}
         {(currentPage === 'Manage Domains') && <ManageDomain/>}
       </Container>

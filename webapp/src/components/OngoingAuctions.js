@@ -1,31 +1,44 @@
 import {
-  makeStyles, Button, Typography, Paper, TextField, Slider, Modal, Table, Card
+  makeStyles, Container, Typography, Paper, TextField, Slider, Modal, Table, Card
 } from '@material-ui/core';
 import React, {useState, useEffect, useCallback} from "react";
 
-function OngoingAuctions({ auctionInstances, auctionAddressesList, auctionDomainsList }) {
-  console.log(auctionInstances);
-  console.log(auctionAddressesList);
-  console.log(auctionDomainsList);
+const useStyles = makeStyles(() => ({
+  detailComponent: {
+    margin: '0.5em',
+    padding: '20px',
+    border: '1px solid #EEEEEE'
+  }
+}));
 
-  const [auctionTrimDomainsList, setAuctionTrimDomainsList] = useState([]);
+function OngoingAuctions({ auctionDetailsList }) {
+  console.log(auctionDetailsList);
+
+  const [auctionDetails, setAuctionDetails] = useState([]);
+  const classes = useStyles();
 
   useEffect(() => {
-    const _auctionTrimDomainsList = [];
-    for (var i = 0 ; i < auctionDomainsList.length ; i++) {
-      var temp = auctionDomainsList[i];
-      temp = temp.replace(/\0/g, '');
-      _auctionTrimDomainsList.push(temp);
-    }
-    setAuctionTrimDomainsList(_auctionTrimDomainsList);
+    const createAuctionDetails = (domain, bidIncrement, bidEndTime, revealEndTime) => (
+      <Container key={domain} className={classes.detailComponent}>
+        <Typography align="left" variant="h4">Domain: {domain}</Typography>
+        <Typography align="left" variant="h6">Bid Increment: {bidIncrement}</Typography>
+        <Typography align="left" variant="h6">Bid End Time: {bidEndTime.toString()}</Typography>
+        <Typography align="left" variant="h6">Reveal End TIme: {revealEndTime.toString()}</Typography>
+      </Container>
+    );
+    const temp = [];
+    Object.keys(auctionDetailsList).map(domain => {
+      const values = auctionDetailsList[domain];
+      temp.push(createAuctionDetails(domain, values.bidIncrement, values.bidEndTime, values.revealEndTime))
+    })
+    setAuctionDetails(temp);
   }, []);
+
 
 return (
     <>
       <Typography align="center" variant="h3"> ~ Ongoing Auctions ~ </Typography>
-      {auctionTrimDomainsList.map(domain => {
-        return <Typography key={domain} align="center" variant="h5">{domain}</Typography>
-      })} 
+      {auctionDetails}
     </>
   );
 }

@@ -3,7 +3,7 @@ import {
 } from '@material-ui/core';
 import CheckIcon from '@material-ui/icons/Check';
 import ToggleButton from '@material-ui/lab/ToggleButton';
-import web3 from 'web3';
+import Web3 from 'web3';
 import React, {useState, useEffect, useCallback} from "react";
 
 const useStyles = makeStyles(() => ({
@@ -34,20 +34,17 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-/**
- * Ongoing Auction - List of ongoing auctions,
- * click on them opens modal to bid before reveal time,
- * modal changes to reveal after reveal time.
- * After auction ended, the button to bid/reveal is disabled and the button to withdraw is enabled.
- */
-
-function UserOnAuction({ domain, bidIncrement, bidEndTime, revealEndTime, auctFactInstance }) {
-  const [openModal, setOpenModal] = useState(false);
+function UserOnAuction({ domain, bidIncrement, bidEndTime, revealEndTime, auctFactInstance, userAccounts }) {
+  const [openBidModal, setOpenBidModal] = useState(false);
+  const [openRevealModal, setOpenRevealModal] = useState(false);
   const [domainSelected, setDomainSelected] = useState('');
+
   const [bidAmountCommit, setBidAmountCommit] = useState('');
   const [isFakeCommit, setIsFakeCommit] = useState(false);
   const [saltCommit, setSaltCommit] = useState('');
+  const [commitDeposit, setCommitDeposit] = useState('');
   const [committed, setCommitted] = useState(false);
+
   const [bidAmountReveal, setBidAmountReveal] = useState('');
   const [isFakeReveal, setIsFakeReveal] = useState(false);
   const [saltReveal, setSaltReveal] = useState('');
@@ -56,106 +53,75 @@ function UserOnAuction({ domain, bidIncrement, bidEndTime, revealEndTime, auctFa
   const [revealedSalts, setRevealedSalts] = useState([]);
 
   const [admin, setAdmin] = useState(false);
-  const [deposit, setDeposit] = useState(0);
   const [endAuction, setEndAuction] = useState(false);
 
   const classes = useStyles();
 
-  const handleBidding = (e) => {
+  const handleBidding = useCallback((e) => {
     let domain = e.currentTarget.value;
     domain = domain.replace(/\0/g, '');
     setDomainSelected(domain);
-    setOpenModal(true);
-  };
+    setOpenBidModal(true);
+  });
 
-  const handleBidAmountCommitChange = (e) => {
-    setBidAmountCommit(e.target.value);
-  }
+  const handleRevealing = useCallback((e) => {
+    let domain = e.currentTarget.value;
+    domain = domain.replace(/\0/g, '');
+    setDomainSelected(domain);
+    setOpenRevealModal(true);
+  });
 
-  const handleFakeCommitChange = () => {
-    setIsFakeCommit(!isFakeCommit);
-  }
-
-   const handleSaltCommitChange = (e) => {
-    setSaltCommit(e.target.value);
-  }
-
-  // const commitBid = useCallback(() => {
-  //   const digits = /^[0-9]*$/;
-  //   if (digits.test(parseInt(bidAmount))) {
-  //     console.log(`submit bid for ${domainSelected} with bid amount ${bidAmount} Gwei, fake ${isFake}, salt ${salt}`);
-  //     auctFactInstance.methods.bidHash(bidAmount*Math.pow(10,9), isFake, web3.utils.fromAscii(salt))
-  //       .call()
-  //       .then(blindBid =>
-  //         auctFactInstance.methods.commitBid(domainSelected, blindBid)
-  //         .send({ from: userAccounts[0], value: deposit })
-  //         .catch(err => console.log(err)))
-  //       .catch(err => console.log(err));
-  //     alert('Commit success');
-  //   } else {
-  //     alert("Invalid input. Please try again");
-  //   }
-  // }, [domainSelected, bidAmount, isFake, salt, deposit]);
-
-
-  const commitBid = () => {
+  const commitBid = useCallback(() => {
     const digits = /^[0-9]*$/;
     if (digits.test(parseInt(bidAmountCommit))) {
-      console.log(`submitting bid for ${domainSelected} with bid amount ${bidAmountCommit}, fake ${isFakeCommit}, salt ${saltCommit}`);
-      auctFactInstance.methods.bidHash(bidAmountCommit*Math.pow(10,9), isFakeCommit, web3.utils.fromAscii(saltCommit))
+      console.log(`submitting bid for ${domainSelected} with bid amount ${bidAmountCommit}, fake ${isFakeCommit}, salt ${saltCommit}, deposit ${commitDeposit}`);
+      auctFactInstance.methods.bidHash(bidAmountCommit*Math.pow(10,9), isFakeCommit, Web3.utils.fromAscii(saltCommit))
         .call()
         .then(blindBid =>
           auctFactInstance.methods.commitBid(domainSelected, blindBid)
-          .send({ from: userAccounts[0] })
+          .send({ from: userAccounts[0], value: Web3.utils.toWei(commitDeposit, 'ether') }))
           .then(() => {
             alert('Commit success');
-            closeModal(true);
+            closeBidModal(true);
             setCommitted(true);
-          })
-          .catch(err => console.log(err)))
-        .catch(err => console.log(err));
-
+          }).then(() => {
+            window.location.reload(false);
+          }).catch((error) => {console.log(error); })
     } else {
       alert("Invalid input. Please try again");
     }
-  };
+  });
 
-  const handleBidAmountRevealChange = (e) => {
-    setBidAmountReveal(e.target.value);
-  }
-
-  const handleFakeRevealChange = () => {
-    setIsFakeReveal(!isFakeCommit);
-  }
-
-   const handleSaltRevealChange = (e) => {
-    setSaltReveal(e.target.value);
-  }
-
-  const revealBid = () => {
-    const digits = /^[0-9]*$/;
-    if (!digits.test(parseInt(bidAmountReveal)) || saltReveal !== saltCommit || isFakeReveal !== isFakeCommit) {
-      alert("Please ensure your reveal bid fake and salt values are matching your commit!")
-    } else {
-      console.log(`submitting bid for ${domainSelected} with bid amount ${bidAmountCommit}, fake ${isFakeCommit}, salt ${saltCommit}`);
-      const newRevealedBids = [...revealedBids, bidAmountReveal];
-      const newRevealedFakes = [...revealedFakes, isFakeReveal];
-      const newRevealedSalts = [...revealedSalts, saltReveal];
+  const addRevealBid = useCallback(() => {
+      const newRevealedBids = revealedBids;
+      const newRevealedFakes = revealedFakes;
+      const newRevealedSalts = revealedSalts;
+      newRevealedBids.push(bidAmountReveal*Math.pow(10,9));
+      newRevealedFakes.push(isFakeReveal);
+      newRevealedSalts.push(saltReveal);
       setRevealedBids(newRevealedBids);
       setRevealedFakes(newRevealedFakes);
       setRevealedSalts(newRevealedSalts);
-      auctFactInstance.methods.revealBid(domainSelected, newRevealedBids, newRevealedFakes, newRevealedSalts)
-        .call()
-        .then(() => {
-          alert('Reveal success');
-          closeModal(true);
-        })
-        .catch(err => console.log(err));
-    }
-  };
+      console.log(revealedBids);
+      console.log(revealedFakes);
+      console.log(revealedSalts);
+  });
 
-  const closeModal = (success) => {
-    setOpenModal(false);
+  const revealBids = useCallback(() => {
+    const receipt = auctFactInstance.methods.revealBid(domainSelected, revealedBids, revealedFakes, revealedSalts)
+      .send({ from: userAccounts[0] })
+      .then(() => {
+        alert("Reveal Submitted!");
+        closeRevealModal();
+        console.log(receipt);
+      }).then(() => {
+        window.location.reload(false);
+      }).catch((error) => {console.log(error); })
+    });
+
+
+  const closeBidModal = useCallback((success) => {
+    setOpenBidModal(false);
     if (!success) {
       setDomainSelected('');
       if (!committed) {
@@ -168,9 +134,12 @@ function UserOnAuction({ domain, bidIncrement, bidEndTime, revealEndTime, auctFa
         setSaltReveal('');
       }
     }
-  }
+  });
 
-  const handleEndAuction(){}
+  const closeRevealModal = useCallback(() => {
+    setOpenRevealModal(false);
+  });
+
 
 return (
     <>
@@ -178,36 +147,37 @@ return (
         <Typography align="left" variant="h4">Domain: {domain}</Typography>
         <Typography align="left" variant="h6">Bid Increment: {bidIncrement}</Typography>
         <Typography align="left" variant="h6">Bid End Time: {bidEndTime.toString()}</Typography>
-        <Typography align="left" variant="h6">Reveal End TIme: {revealEndTime.toString()}</Typography>
-        <Button className={classes.bidButton} variant="outlined" color="primary" value={domain} onClick={handleBidding} disabled={committed}>Commit bid for this Domain</Button>
-        <Button className={classes.bidButton} variant="outlined" color="primary" value={domain} onClick={handleBidding} disabled={!committed}>Reveal bid for this Domain</Button>
-        <Button className={classes.bidButton} variant="outlined" color="primary" value={domain} onClick={handleEndAuction} disabled={admin}>End this Auction</Button>
+        <Typography align="left" variant="h6">Reveal End Time: {revealEndTime.toString()}</Typography>
+        <Button className={classes.bidButton} variant="outlined" color="primary" value={domain} onClick={handleBidding}>Commit bid for this Domain</Button>
+        <Button className={classes.bidButton} variant="outlined" color="primary" value={domain} onClick={handleRevealing}>Reveal bid for this Domain</Button>
+
       </Paper>
-      <Modal open={openModal && !committed} onClose={() => closeModal(false)} >
+      <Modal open={openBidModal} onClose={() => closeBidModal(false)} >
         <Paper className={classes.modal}>
           <Typography align="center" variant="h6"> Commit Bid </Typography>
-          <TextField label="Pay Domain (in Eth)" type="text" className={classes.textField} value={bidAmountCommit} onChange={handleBidAmountCommitChange} />
-          <TextField label="Set Salt" type="text" className={classes.textField} value={saltCommit} onChange={handleSaltCommitChange} />
-          <ToggleButton value="check" selected={isFakeCommit} className={classes.toggle} onChange={handleFakeCommitChange}>
+          <TextField label="Bid Amount (in Eth)" type="text" className={classes.textField} value={bidAmountCommit} onChange={(event) => setBidAmountCommit(event.target.value)} />
+          <TextField label="Set Salt" type="text" className={classes.textField} value={saltCommit} onChange={(event) => setSaltCommit(event.target.value)} />
+          <ToggleButton value="check" selected={isFakeCommit} className={classes.toggle} onChange={(event) => setIsFakeCommit(event.target.selected)}>
             <p>Fake</p><CheckIcon className={classes.checkicon}/>
           </ToggleButton>
-          <TextField label="Set Salt" type="text" className={classes.textField} value={deposit} onChange={handleDepositChange} />
+          <TextField label="Deposit" type="text" className={classes.textField} value={commitDeposit} onChange={(event) => setCommitDeposit(event.target.value)} />
           <br/> <br/>
           <Button className={classes.smallbutton} variant="contained" color="primary" onClick={commitBid}> Confirm Payment </Button>
-          <Button className={classes.smallbutton} variant="contained" color="default" onClick={() => closeModal(false)}> Close </Button>
+          <Button className={classes.smallbutton} variant="contained" color="default" onClick={() => closeBidModal(false)}> Close </Button>
         </Paper>
       </Modal>
-      <Modal open={openModal && committed} onClose={() => closeModal(false)} >
+      <Modal open={openRevealModal} onClose={() => closeRevealModal()} >
         <Paper className={classes.modal}>
           <Typography align="center" variant="h6"> Reveal Bid </Typography>
-          <TextField label="Pay Domain (in Eth)" type="text" className={classes.textField} value={bidAmountReveal} onChange={handleBidAmountRevealChange} />
-          <TextField label="Set Salt" type="text" className={classes.textField} value={saltReveal} onChange={handleSaltRevealChange} />
-          <ToggleButton value="check" selected={isFakeReveal} className={classes.toggle} onChange={handleFakeRevealChange}>
+          <TextField label="Pay Domain (in Eth)" type="text" className={classes.textField} value={bidAmountReveal} onChange={(event) => setBidAmountReveal(event.target.value)} />
+          <TextField label="Set Salt" type="text" className={classes.textField} value={saltReveal} onChange={(event) => setSaltReveal(event.target.value)} />
+          <ToggleButton value="check" selected={isFakeReveal} className={classes.toggle} onChange={(event) => setIsFakeReveal(event.target.selected)}>
             <p>Fake</p><CheckIcon className={classes.checkicon}/>
           </ToggleButton>
           <br/> <br/>
-          <Button className={classes.smallbutton} variant="contained" color="primary" onClick={revealBid}> Confirm Payment </Button>
-          <Button className={classes.smallbutton} variant="contained" color="default" onClick={() => closeModal(false)}> Close </Button>
+          <Button className={classes.smallbutton} variant="contained" color="primary" onClick={addRevealBid}> Add reveal bid </Button>
+          <Button className={classes.smallbutton} variant="contained" color="primary" onClick={revealBids}> Confirm Reveals </Button>
+          <Button className={classes.smallbutton} variant="contained" color="default" onClick={() => closeRevealModal()}> Close </Button>
         </Paper>
       </Modal>
 

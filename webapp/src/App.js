@@ -71,9 +71,9 @@ const App = () => {
     <Paper className={classes.root} elevation={2}>
       <Typography align="center" variant="h3"> Welcome to DDNS dApp </Typography>
       <br />
-      <Typography align="center" variant="h5">Bank Contract Address: {auctFactAddr}</Typography>
+      <Typography align="center" variant="h5">AuctionMaster Contract Address: {auctFactAddr}</Typography>
       <br />
-      <Typography align="center" variant="h5">Registry Contract Address: {regAddr}</Typography>
+      <Typography align="center" variant="h6">Registry Contract Address: {regAddr}</Typography>
       <hr />
       <div>
         <Typography align="center" variant="h6">Your Wallet: {userAccounts}</Typography>

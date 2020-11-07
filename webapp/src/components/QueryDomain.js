@@ -162,7 +162,7 @@ function QueryDomain({ auctFactInstance, regInstance, regAddr, auctionDomainsLis
     }
   }, [auctFactInstance, accountAddress]);
 
-  const handleModalOpenModalOne = useCallback(() => {
+  const handleOpenModalOne = useCallback(() => {
     setOpenModalOne(true);
   }, [setOpenModalOne]);
 
@@ -170,7 +170,7 @@ function QueryDomain({ auctFactInstance, regInstance, regAddr, auctionDomainsLis
     setOpenModalOne(false);
   }, [setOpenModalOne]);
 
-  const handleModalOpenModalTwo = useCallback(() => {
+  const handleOpenModalTwo = useCallback(() => {
     setOpenModalTwo(true);
   }, [setOpenModalTwo]);
 
@@ -208,10 +208,10 @@ function QueryDomain({ auctFactInstance, regInstance, regAddr, auctionDomainsLis
         {(queried === 3 || queried === 4) && (queryResult === '') && (domOrAddr === 'domain') && <Typography align="center" variant="h5"> Domain Not Found! </Typography>}
 
         {(queryResult !== '') && (domOrAddr === 'domain') && <Typography align="center" variant="h5"> Domain Name: {queryResult} </Typography>}
-        {(queryResult !== '') && (domOrAddr === 'domain') && <Button className={classes.bidbutton} variant="contained" color="primary" onClick={() => handleModalOpenModalOne()}> Pay this Domain! </Button>}
+        {(queryResult !== '') && (domOrAddr === 'domain') && <Button className={classes.bidbutton} variant="contained" color="primary" onClick={() => handleOpenModalOne()}> Pay this Domain! </Button>}
         <Modal
         open={openModalOne}
-        onClose={handleCloseModalOne}
+        onClose={() => handleCloseModalOne()}
         >
         <Paper className={classes.modal}>
         <TextField id="payment-input" label="Pay Domain (in Eth)" type="text" className={classes.textField} onChange={ (event) => {setPaymentAmount(event.target.value)}}/>
@@ -222,10 +222,10 @@ function QueryDomain({ auctFactInstance, regInstance, regAddr, auctionDomainsLis
 
         {(queried === 1 || queried === 2) && (queryResult === '') && (canRegister === false) && <Typography align="center" variant="h5"> Domain is currently on auction! </Typography>}
         {((queried === 1 || queried === 2) && queryResult === '') && (canRegister === true) && <Typography align="center" variant="h5"> Domain is available! </Typography>}
-        {(queried === 1 || queried === 2) && (queryResult === '') && (canRegister === true) && <Button className={classes.bidbutton} variant="contained" color="primary" onClick={() => handleModalOpenModalTwo()}> Start an Auction for this Domain! </Button>}
+        {(queried === 1 || queried === 2) && (queryResult === '') && (canRegister === true) && <Button className={classes.bidbutton} variant="contained" color="primary" onClick={() => handleOpenModalTwo()}> Start an Auction for this Domain! </Button>}
         <Modal
         open={openModalTwo}
-        onClose={handleCloseModalTwo}
+        onClose={() => handleCloseModalTwo()}
         >
         <Paper className={classes.modal}>
         <Typography align="center" variant="h5"> Bid Increments(in Ether): </Typography>

@@ -1,5 +1,5 @@
 import {
-  makeStyles, Button, Typography, Paper, TextField, Slider, Modal
+  makeStyles, Button, Typography, Paper, TextField, Slider, Modal, Table, Card
 } from '@material-ui/core';
 import React, {useState, useCallback} from "react";
 import Web3 from 'web3';
@@ -13,7 +13,7 @@ function OngoingAuctions({ auctionInstances, auctionAddressesList, auctionDomain
   const auctionTrimDomainsList = [];
   for (var i = 0 ; i < auctionDomainsList.length ; i++) {
     var temp = auctionDomainsList[i];
-    temp = temp.trim();
+    temp = temp.replace(/\0/g, '');
     auctionTrimDomainsList.push(temp);
   }
   console.log(auctionTrimDomainsList);

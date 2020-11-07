@@ -11,14 +11,14 @@ contract("Registry and Resolver", async (accounts) => {
   // Always deploy contract instance before any test
   let registry;
   beforeEach(async function() {
-    registry = await Registry.deployed();
-    const testGetRegAddress = await registry.getRegAddress.call();
-    assert(registry.address, testGetRegAddress);
+    auctionfactory = await AuctionFactory.deployed();
+    const regAddr = await auctionfactory.registryAddr();
+    registry = new Registry(regAddr);
   });
 
-  // accounts are the list of account created by the Truffle (i.e. 10 key pair)
   it("should make deployer the owner", async () => {
-    const owner = await registry.owner();
+    const test = await auctionfactory.registryAddr();
+    const owner = await registry.getRegOwner();
     assert.equal(owner, accounts[0]);
   });
 

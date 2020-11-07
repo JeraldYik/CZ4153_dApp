@@ -1,6 +1,5 @@
 import React, {useState, useEffect} from "react";
 import User from './components/User';
-import Web3 from 'web3'
 import './App.css';
 import {
   makeStyles, Paper, Button, Typography, Container
@@ -60,10 +59,6 @@ const App = () => {
   const [query, setQuery] = useState(0);
   const [queryResult, setQueryResult] = useState('');
   const [queryReceipt, setQueryReceipt] = useState('');
-
-  const handleDomainNameChange = (e) => {
-    setDomainName(e.target.value);
-  }
 
   const handlePageChange = (page) => {
     setCurrentPage(page);

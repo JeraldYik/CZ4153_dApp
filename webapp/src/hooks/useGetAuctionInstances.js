@@ -18,6 +18,7 @@ function useGetAuctionInstances({ web3, contractAddresses, contract }) {
       });
     }
   }, [web3, contract, contractAddresses]);
+  console.log(contractAddresses)
   return auctions;
 }
 

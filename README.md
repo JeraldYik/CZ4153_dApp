@@ -48,4 +48,8 @@ We have 3 contracts, namely:
 
 Our unit tests in [./test/Auctions.js](./test/Auctions.js) and [./test/Registry.js](./test/Registry.js) test every of the functions declared in our contracts, by declaring individual senarios that as a whole, covers the workings of our application.
 
-We also created a simulation test in [./test/Simulation.js](./test/Simulation.js) to provide a thorough runthrough of the entire Auction process, from the creation of an auction, to the transfer of ownership and fees. Edge cases are also tested to cover as many possibilities as possible.
+We also created a simulation test in [./test/Simulation.js](./test/Simulation.js) to provide a thorough run through of the entire Auction process, from the creation of an auction, to the transfer of ownership and fees. Edge cases are also tested to cover as many possibilities as possible.
+
+## WebApp
+
+Our WebApp is unfinished due to the lack of front end expertise. We understand that it is important to have a functional front end interface, so we have implemented some of the functions. Owing to the fact that our Webapp is not completed, we have created a Simulation.js unit test to prove that the contracts can function with the right ABI call.
